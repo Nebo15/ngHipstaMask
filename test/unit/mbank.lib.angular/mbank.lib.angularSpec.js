@@ -20,5 +20,5 @@ describe('mbank.lib.angular', function() {
   it('should load config module', function() {
     expect(hasModule('mbank.lib.angular.config')).to.be.ok;
   });
-  
+
 });
