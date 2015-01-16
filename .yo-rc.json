@@ -1,0 +1,28 @@
+{
+  "generator-angularjs-library": {
+    "props": {
+      "author": {
+        "name": "Nebo#15",
+        "email": "support@nebo15.com"
+      },
+      "libraryName": {
+        "original": "mbank.lib.angular",
+        "camelized": "mbank.lib.angular",
+        "dasherized": "mbank.lib.angular",
+        "slugified": "mbanklibangular",
+        "parts": [
+          "mbanklibangular"
+        ]
+      },
+      "includeModuleDirectives": false,
+      "includeModuleFilters": false,
+      "includeModuleServices": false,
+      "includeAngularModuleResource": false,
+      "includeAngularModuleCookies": false,
+      "includeAngularModuleSanitize": false,
+      "librarySrcDirectory": "src/mbank.lib.angular",
+      "libraryUnitTestDirectory": "test/unit/mbank.lib.angular",
+      "libraryUnitE2eDirectory": "test/e2e/mbank.lib.angular"
+    }
+  }
+}
