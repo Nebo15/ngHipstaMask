@@ -1,17 +1,17 @@
 {
   "name": "mbanklibangular",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "author": {
     "name": "Nebo#15",
     "email": "support@nebo15.com"
   },
   "dependencies": {},
   "devDependencies": {
-    "chai": "^1.9.1",
+    "chai": "1.9.1",
     "chai-jquery": "^1.2.3",
     "gulp": "^3.8.7",
     "gulp-concat": "^2.3.4",
-    "gulp-rename": "^1.2.0",
+    "gulp-rename": "1.2.0",
     "gulp-uglify": "^0.3.1",
     "karma": "^0.12.22",
     "karma-chai": "^0.1.0",
