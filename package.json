@@ -8,8 +8,8 @@
   "dependencies": {},
   "devDependencies": {
     "chai": "1.9.1",
-    "chai-jquery": "^1.2.3",
-    "gulp": "^3.8.7",
+    "chai-jquery": "1.2.3",
+    "gulp": "3.4.0",
     "gulp-concat": "^2.3.4",
     "gulp-rename": "1.2.0",
     "gulp-uglify": "^0.3.1",
