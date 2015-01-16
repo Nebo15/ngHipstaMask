@@ -9,7 +9,7 @@
   "devDependencies": {
     "chai": "1.9.x",
     "chai-jquery": "1.2.x",
-    "gulp": "3.4.x",
+    "gulp": "3.8.10",
     "gulp-concat": "2.2.x",
     "gulp-rename": "1.2.x",
     "gulp-uglify": "0.3.x",
@@ -27,6 +27,6 @@
     "sinon-chai": "2.5.x"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": "0.11"
   }
 }
