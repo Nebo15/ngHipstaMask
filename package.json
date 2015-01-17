@@ -5,12 +5,17 @@
     "name": "Nebo#15",
     "email": "support@nebo15.com"
   },
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     "chai": "1.9.x",
     "chai-jquery": "1.2.x",
+    "connect-livereload": "^0.5.2",
     "gulp": "3.8.10",
+    "gulp-bower": "0.0.10",
     "gulp-concat": "2.2.x",
+    "gulp-connect": "^2.2.0",
+    "gulp-inject": "^1.1.1",
     "gulp-rename": "1.2.x",
     "gulp-uglify": "0.3.x",
     "karma": "0.12.x",
@@ -24,7 +29,8 @@
     "karma-sinon-chai": "0.2.x",
     "mocha": "1.21.x",
     "sinon": "1.10.x",
-    "sinon-chai": "2.5.x"
+    "sinon-chai": "2.5.x",
+    "tiny-lr": "^0.1.4"
   },
   "engines": {
     "node": "0.11"

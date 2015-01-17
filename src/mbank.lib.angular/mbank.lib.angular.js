@@ -4,12 +4,18 @@
 
 // Config
 angular.module('mbank.lib.angular.config', [])
-    .value('mbank.lib.angular.config', {
-        debug: true
-    });
+	.value('mbank.lib.angular.config', {
+	    debug: true
+	});
 
 // Modules
-angular.module('mbank.lib.angular',
+var Mbank = angular.module('mbank.lib.angular',
     [
         'mbank.lib.angular.config'
     ]);
+
+Mbank.config(['$httpProvider', function($httpProvider) {
+//    $httpProvider.defaults.useXDomain = true;
+    $httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
+//    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+}]);
