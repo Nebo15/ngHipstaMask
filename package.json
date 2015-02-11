@@ -6,6 +6,10 @@
     "email": "support@nebo15.com"
   },
   "dependencies": {
+    "gulp": "^3.8.11",
+    "gulp-bump": "^0.1.13",
+    "gulp-git": "^1.0.0",
+    "gulp-run-sequence": "^0.3.2"
   },
   "devDependencies": {
     "chai": "1.9.x",

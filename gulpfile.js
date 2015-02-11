@@ -10,7 +10,8 @@ var gulp = require('gulp'),
       'src/mbank.lib.angular/mbank.lib.angular.js',
       'src/mbank.lib.angular/**/*.js',
       'src/mbank.lib.angular/mbank.lib.angular.suffix'
-    ];
+    ],
+    git = require('gulp-git');
 
 gulp.task('build', function() {
   gulp.src(sourceFiles)
@@ -70,5 +71,12 @@ gulp.task('webserver', function() {
     });
 });
 
+gulp.task('clone-bower-component', function () {
+    git.clone('https://github.com/Nebo15/mbank.lib.angular-compiled', {args: 'dist'}, function (err) {
+        if (err) throw err;
+    });
+});
+
 gulp.task('serve', ['default','webserver', 'watch']);
-gulp.task('default', ['test-src','build']);
+gulp.task('default', ['test-src','clone-bower-component','build']);
+gulp.task('bower-component-publish', ['test-src','clone-bower-component','build']);
