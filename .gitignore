@@ -16,6 +16,3 @@ libpeerconnection.log
 
 # Bower components
 bower
-
-# Generated lib files
-dist
