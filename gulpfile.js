@@ -91,7 +91,11 @@ gulp.task('publish-bower-package', function (cb) {
 });
 
 gulp.task('serve', ['default','webserver', 'watch']);
-gulp.task('default', function (cb) {
-    runSequence('clean','test-src','clone-bower-component','build','publish-bower-package', cb);
+gulp.task('build', function (cb) {
+    runSequence('clean','test-src','clone-bower-component','build', cb);
+})
+gulp.task('default', ['build']);
+gulp.task('publish', function (cb) {
+  runSequence('build','publish-bower-package', cb);
 });
 gulp.task('bower-component-publish', ['test-src','clone-bower-component','build']);
