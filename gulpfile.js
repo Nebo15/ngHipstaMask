@@ -83,7 +83,6 @@ gulp.task('clean', function (cb) {
 });
 
 gulp.task('publish-bower-package', function (cb) {
-
     gulp.src( './dist/gulpfile.js' )
         .pipe( chug({
             tasks: ['update-changes']
@@ -91,11 +90,10 @@ gulp.task('publish-bower-package', function (cb) {
 });
 
 gulp.task('serve', ['default','webserver', 'watch']);
-gulp.task('build', function (cb) {
+gulp.task('build-lib', function (cb) {
     runSequence('clean','test-src','clone-bower-component','build', cb);
 })
-gulp.task('default', ['build']);
+gulp.task('default', ['build-lib']);
 gulp.task('publish', function (cb) {
-  runSequence('build','publish-bower-package', cb);
+  runSequence('build-lib','publish-bower-package', cb);
 });
-gulp.task('bower-component-publish', ['test-src','clone-bower-component','build']);
