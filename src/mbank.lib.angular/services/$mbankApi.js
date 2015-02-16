@@ -90,9 +90,9 @@ function MbankApi ($http, $log, Base64) {
     function MbankApiService (url) {
         this.url = url;
     }
-    MbankApiService.Utils.uuid = uuid;
-
-    
+    MbankApiService.prototype.Utils = {
+        uuid: uuid
+    };
     MbankApiService.prototype.setCredentials = function (username, password) {
         credentials = Base64.encode(username+':'+password);
     };
@@ -151,7 +151,7 @@ function MbankApi ($http, $log, Base64) {
     MbankApiService.prototype.paymentPay = function (paymentId) {
         paymentId = parseInt(paymentId) || null;
         if (!paymentId) throw new TypeError("Not valid paymentId", paymentId);
-        return this.$$request('payments/'+paymentId+'/pay', true, 'get');
+        return this.$$request('payments/'+paymentId+'/pay', true, 'post');
     };
     MbankApiService.prototype.paymentInfo = function (paymentId) {
         paymentId = parseInt(paymentId) || null;
@@ -159,8 +159,8 @@ function MbankApi ($http, $log, Base64) {
         return this.$$request('payments/'+paymentId, true, 'get');
     };
     MbankApiService.prototype.paymentsHistory = function (page, size) {
-        page = parseInt(page) || null;
-        size = parseInt(size) || null;
+        page = parseInt(page);
+        size = parseInt(size);
         if (typeof page !== 'number' || page < 0) throw new TypeError("Not valid page parameter", page);
         if (typeof size !== 'number' || size < 0) throw new TypeError("Not valid size parameter", size);
 
@@ -196,7 +196,7 @@ function MbankApi ($http, $log, Base64) {
     MbankApiService.prototype.invoicePay = function (invoiceId) {
         invoiceId = invoiceId.toString() || null;
         if (!mongoDbIdRegExp.text(invoiceId)) throw new TypeError("Not valid invoiceId", invoiceId);
-        return this.$$request('invoices/'+invoiceId+'/pay', true, 'psot');
+        return this.$$request('invoices/'+invoiceId+'/pay', true, 'post');
     };
 
     return new MbankApiService(this.get('url'));
