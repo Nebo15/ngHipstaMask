@@ -5,19 +5,32 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     tinylr = require('tiny-lr')(),
     connect = require('gulp-connect'),
-    sourceFiles = [
+    sourceFilesApi = [
       'src/mbank.lib.angular/mbank.lib.angular.prefix',
       'src/mbank.lib.angular/mbank.lib.angular.js',
-      'src/mbank.lib.angular/**/*.js',
+      'src/mbank.lib.angular/services/$mbankApi.js',
       'src/mbank.lib.angular/mbank.lib.angular.suffix'
+    ],
+    sourceFilesAdminApi = [
+        'src/mbank.lib.angular/mbank.lib.angular.prefix',
+        'src/mbank.lib.angular/mbank.lib.admin.angular.js',
+        'src/mbank.lib.angular/services/$mbankAdminApi.js',
+        'src/mbank.lib.angular/mbank.lib.angular.suffix'
     ];
 
 gulp.task('build', function() {
-  gulp.src(sourceFiles)
+  gulp.src(sourceFilesApi)
     .pipe(concat('mbanklibangular.js'))
     .pipe(gulp.dest('./dist/'))
     .pipe(uglify())
     .pipe(rename('mbanklibangular.min.js'))
+    .pipe(gulp.dest('./dist'));
+
+  gulp.src(sourceFilesAdminApi)
+    .pipe(concat('mbankadminlibangular.js'))
+    .pipe(gulp.dest('./dist/'))
+    .pipe(uglify())
+    .pipe(rename('mbankadminlibangular.min.js'))
     .pipe(gulp.dest('./dist'))
 });
 
@@ -54,7 +67,7 @@ gulp.task('test-dist-minified', function (done) {
  * Watching for change
  */
 gulp.task('watch', function() {
-    gulp.watch(['gulpfile.js', sourceFiles, 'test/**/*', 'examples/**/*'], ['default']);
+    gulp.watch(['gulpfile.js', sourceFilesApi, sourceFilesAdminApi, 'test/**/*', 'examples/**/*'], ['default']);
 });
 /**
  * LIVERELOAD
