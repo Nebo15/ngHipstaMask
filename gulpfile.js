@@ -11,12 +11,17 @@ var gulp = require('gulp'),
       'src/mbank.lib.angular/services/$mbankApi.js',
       'src/mbank.lib.angular/mbank.lib.angular.suffix'
     ],
+
     sourceFilesAdminApi = [
         'src/mbank.lib.angular/mbank.lib.angular.prefix',
         'src/mbank.lib.angular/mbank.lib.admin.angular.js',
         'src/mbank.lib.angular/services/$mbankAdminApi.js',
         'src/mbank.lib.angular/mbank.lib.angular.suffix'
     ];
+    git = require('gulp-git'),
+    runSequence = require('gulp-run-sequence'),
+    rmdir = require('rimraf'),
+    chug = require( 'gulp-chug' );
 
 gulp.task('build', function() {
   gulp.src(sourceFilesApi)
@@ -83,5 +88,26 @@ gulp.task('webserver', function() {
     });
 });
 
+gulp.task('clone-bower-component', function (cb) {
+    git.clone('https://github.com/Nebo15/mbank.lib.angular-compiled', {args: 'dist'}, cb);
+});
+
+gulp.task('clean', function (cb) {
+    rmdir('dist', cb);
+});
+
+gulp.task('publish-bower-package', function (cb) {
+    gulp.src( './dist/gulpfile.js' )
+        .pipe( chug({
+            tasks: ['update-changes']
+        }) );
+});
+
 gulp.task('serve', ['default','webserver', 'watch']);
-gulp.task('default', ['test-src','build']);
+gulp.task('build-lib', function (cb) {
+    runSequence('clean','test-src','clone-bower-component','build', cb);
+})
+gulp.task('default', ['build-lib']);
+gulp.task('publish', function (cb) {
+  runSequence('build-lib','publish-bower-package', cb);
+});
