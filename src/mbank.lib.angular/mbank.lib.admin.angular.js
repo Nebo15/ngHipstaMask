@@ -9,7 +9,7 @@ var Mbank = angular.module('mbank.admin.lib.angular',
         'mbank.admin.lib.angular.config'
     ]);
 
-Mbank.config(['$httpProvider','$mbankAdminApiProvider', function($httpProvider) {
+Mbank.config(['$httpProvider', function($httpProvider) {
     $httpProvider.defaults.useXDomain = true;
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
 }]);
