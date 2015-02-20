@@ -12,12 +12,14 @@ var gulp = require('gulp'),
       'src/mbank.lib.angular/mbank.lib.angular.suffix'
     ],
 
+
     sourceFilesAdminApi = [
         'src/mbank.lib.angular/mbank.lib.angular.prefix',
         'src/mbank.lib.angular/mbank.lib.admin.angular.js',
         'src/mbank.lib.angular/services/$mbankAdminApi.js',
         'src/mbank.lib.angular/mbank.lib.angular.suffix'
     ];
+
     git = require('gulp-git'),
     runSequence = require('gulp-run-sequence'),
     rmdir = require('rimraf'),
