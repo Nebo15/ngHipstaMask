@@ -11,12 +11,10 @@ var gulp = require('gulp'),
       'src/mask/**/*.js',
       'src/mask/mask.suffix'
     ],
-    git = require('gulp-git'),
     runSequence = require('gulp-run-sequence'),
     rmdir = require('rimraf'),
     chug = require( 'gulp-chug' ),
     path = require('path'),
-    compass = require('gulp-compass'),
     sass = require('gulp-sass'),
     minifyCSS = require('gulp-minify-css'),
     plumber = require('gulp-plumber');

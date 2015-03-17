@@ -78,11 +78,40 @@ Mask.service('$mask', function () {
   function templateFromMask (mask) {
     return parse(mask).template;
   }
+  // get position in clear value from position in dirty value
+  function clearPosition (idx, mask, forward) {
+    forward = typeof forward !== 'undefined' ? forward : false; // true
+
+    var config = parse(mask);
+
+    var clearIdx = 0,
+        schema = config.schema;
+    if (idx < schema[0].pos) return 0;
+    if (idx >= schema[schema.length - 1].pos) return schema.length - 1;
+
+    for (var i = 0, l = schema.length; i < l; i++) {
+      if (schema[i].pos <= idx) {
+        clearIdx = i;
+      } else {
+        clearIdx = forward ? i : clearIdx;
+        break;
+      }
+    }
+
+    return clearIdx;
+  }
+  function dirtyPosition (clearIdx, mask) {
+    var config = parse(mask);
+    if (clearIdx < 0 || !mask || clearIdx > config.schema.length-1) return;
+    return config.schema[clearIdx].pos;
+  }
   return {
     fill: fill,
     get: parse,
     parse: parse,
     clear: clear,
+    clearPosition: clearPosition,
+    dirtyPosition: dirtyPosition,
     has: hasMask,
     place: place,
     placer: placer,

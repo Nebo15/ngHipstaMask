@@ -124,6 +124,49 @@ describe('ngMask', function() {
       it ('should support mask that have not placements', function () {
         expect($mask.template('123')).toEqual('123');
       });
+    });
+    describe('clearPosition', function () {
+      it ('should return 0 position in empty mask', function () {
+        expect($mask.clearPosition(10,'')).toEqual(0);
+      });
+      it ('should return 0 on less idx, then minimum pattern idx', function () {
+        expect($mask.clearPosition(2,'12312312##')).toEqual(0);
+        expect($mask.clearPosition(2,'123##1312##')).toEqual(0);
+      });
+      it ('should return schema length if idx more, then schema max pos', function () {
+        expect($mask.clearPosition(4,'###123')).toEqual(2);
+        expect($mask.clearPosition(11,'123##1312#2323')).toEqual(2);
+      });
+      it ('should return index of the char in clear value', function () {
+        expect($mask.clearPosition(3,'2###')).toEqual(2);
+        expect($mask.clearPosition(2,'2###')).toEqual(1);
+        expect($mask.clearPosition(4,'2#23##')).toEqual(1);
+      });
+      it ('should return index of the nearest valid pattern position on the left side', function () {
+        expect($mask.clearPosition(3,'2#23##')).toEqual(0);
+        expect($mask.clearPosition(8,'2#23#123123#')).toEqual(1);
+      });
+      it ('should return index of the nearest valid pattern position on the right side', function () {
+        expect($mask.clearPosition(3,'2##223#', true)).toEqual(2);
+        expect($mask.clearPosition(2,'2#21##', true)).toEqual(1);
+        expect($mask.clearPosition(3,'2##8#3##', true)).toEqual(2);
+      });
+    });
+    describe('dirtyPosition', function () {
+      it ('should return undefined if value is less 0', function () {
+        expect($mask.dirtyPosition(-1, '1###')).not.toBeDefined();
+      });
+      it ('should return undefined for empty mask', function () {
+        expect($mask.dirtyPosition(2, '')).not.toBeDefined();
+        expect($mask.dirtyPosition(0, '')).not.toBeDefined();
+      });
+      it ('should return undefined if idx is bigger then schema length', function () {
+        expect($mask.dirtyPosition(2, '#')).not.toBeDefined();
+      });
+      it ('should return position of schema char', function () {
+        expect($mask.dirtyPosition(0, '232#')).toEqual(3);
+        expect($mask.dirtyPosition(1, '232#23#')).toEqual(6);
+      });
     })
   });
 });
