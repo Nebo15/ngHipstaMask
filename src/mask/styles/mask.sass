@@ -1,0 +1,29 @@
+/**
+ * Created by alexey on 16.03.15.
+ */
+
+@mixin edge
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+
+$white: #fff
+
+.mask-wrap
+
+  background-color: $white
+  position: relative
+  .mask-text, input
+    font-family: monospace
+    font-size: 14px
+
+  $left-padding: 7px
+  .mask-text
+    position: absolute
+    line-height: 34px
+    left: $left-padding
+  .mask-input
+    input
+      background-color: transparent
+      padding-left: $left-padding

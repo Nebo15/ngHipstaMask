@@ -26,7 +26,7 @@ module.exports = function(config) {
     files: [
       'bower/angular/angular.js',
       'bower/angular-mocks/angular-mocks.js',
-      'dist/mbanklibangular.js',
+      'dist/ngMask.js',
       'test/unit/**/*.js'
     ],
 

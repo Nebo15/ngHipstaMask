@@ -5,41 +5,72 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     tinylr = require('tiny-lr')(),
     connect = require('gulp-connect'),
-    sourceFilesApi = [
-      'src/mbank.lib.angular/mbank.lib.angular.prefix',
-      'src/mbank.lib.angular/mbank.lib.angular.js',
-      'src/mbank.lib.angular/services/$mbankApi.js',
-      'src/mbank.lib.angular/mbank.lib.angular.suffix'
+    sourceFiles = [
+      'src/mask/mask.prefix',
+      'src/mask/mask.js',
+      'src/mask/**/*.js',
+      'src/mask/mask.suffix'
     ],
-
-
-    sourceFilesAdminApi = [
-        'src/mbank.lib.angular/mbank.lib.angular.prefix',
-        'src/mbank.lib.angular/mbank.lib.admin.angular.js',
-        'src/mbank.lib.angular/services/$mbankAdminApi.js',
-        'src/mbank.lib.angular/mbank.lib.angular.suffix'
-    ];
-
     git = require('gulp-git'),
     runSequence = require('gulp-run-sequence'),
     rmdir = require('rimraf'),
-    chug = require( 'gulp-chug' );
+    chug = require( 'gulp-chug' ),
+    path = require('path'),
+    compass = require('gulp-compass'),
+    sass = require('gulp-sass'),
+    minifyCSS = require('gulp-minify-css'),
+    plumber = require('gulp-plumber');
+    notify = require('gulp-notify');
+
+
+var _libName = 'ngMask';
+/**
+ * SASS
+ */
+
+var onError = function(err) {
+  console.log(err);
+};
+
+gulp.task('sass', function () {
+  gulp.src('./src/**/*.sass')
+    .pipe(sass({indentedSyntax: true}))
+    .pipe(gulp.dest('./.tmp/css'))
+    .pipe(concat(_libName +'.css'))
+    .pipe(gulp.dest('./dist'))
+    .pipe(minifyCSS())
+    .pipe(rename(_libName + '.min.css'))
+    .pipe(gulp.dest('./dist'));
+});
+
+gulp.task('default', ['sass']);
+
+gulp.task('styles', function() {
+  return gulp.src('./src/**/*.sass')
+    .pipe(plumber({
+      errorHandler: onError
+    }))
+    .pipe(compass({
+      css: '.tmp',
+      sass: './src/mask/styles'
+    }))
+    .pipe(notify({ message: 'Styles task complete' }));
+});
+
+gulp.task('copy:css', function() {
+  gulp.src('./.tmp/**/*.css')
+    .pipe(gulp.dest('./dist/css'));
+});
 
 gulp.task('build', function() {
-  gulp.src(sourceFilesApi)
-    .pipe(concat('mbanklibangular.js'))
+  gulp.src(sourceFiles)
+    .pipe(concat(_libName +'.js'))
     .pipe(gulp.dest('./dist/'))
     .pipe(uglify())
-    .pipe(rename('mbanklibangular.min.js'))
+    .pipe(rename(_libName +'.min.js'))
     .pipe(gulp.dest('./dist'));
-
-  gulp.src(sourceFilesAdminApi)
-    .pipe(concat('mbankadminlibangular.js'))
-    .pipe(gulp.dest('./dist/'))
-    .pipe(uglify())
-    .pipe(rename('mbankadminlibangular.min.js'))
-    .pipe(gulp.dest('./dist'))
 });
+
 
 /**
  * Run test once and exit
@@ -74,7 +105,8 @@ gulp.task('test-dist-minified', function (done) {
  * Watching for change
  */
 gulp.task('watch', function() {
-    gulp.watch(['gulpfile.js', sourceFilesApi, sourceFilesAdminApi, 'test/**/*', 'examples/**/*'], ['default']);
+    gulp.watch(['./src/mask/styles/**/*'], ['sass']);
+    gulp.watch(['gulpfile.js', sourceFiles, 'test/**/*', 'examples/**/*'], ['default']);
 });
 /**
  * LIVERELOAD
@@ -91,7 +123,7 @@ gulp.task('webserver', function() {
 });
 
 gulp.task('clone-bower-component', function (cb) {
-    git.clone('https://github.com/Nebo15/mbank.lib.angular-compiled', {args: 'dist'}, cb);
+    //git.clone('https://github.com/Nebo15/mbank.lib.angular-compiled', {args: 'dist'}, cb);
 });
 
 gulp.task('clean', function (cb) {
@@ -107,9 +139,9 @@ gulp.task('publish-bower-package', function (cb) {
 
 gulp.task('serve', ['default','webserver', 'watch']);
 gulp.task('build-lib', function (cb) {
-    runSequence('clean','test-src','clone-bower-component','build', cb);
-})
-gulp.task('default', ['build-lib']);
+    runSequence('clean','test-src','build', cb);
+});
+gulp.task('default', ['build-lib', 'sass']);
 gulp.task('publish', function (cb) {
   runSequence('build-lib','publish-bower-package', cb);
 });
