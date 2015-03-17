@@ -1,38 +1,34 @@
 'use strict';
 
 Mask.service('maskUtils', function () {
-  function getCaretPosition (ctrl) {
-    var CaretPos = 0;	// IE Support
-    if (document.selection) {
-      ctrl.focus ();
-      var Sel = document.selection.createRange ();
-      Sel.moveStart ('character', -ctrl.value.length);
-      CaretPos = Sel.text.length;
-    }
-    // Firefox support
-    else if (ctrl.selectionStart || ctrl.selectionStart == '0')
-      CaretPos = ctrl.selectionStart;
-    return (CaretPos);
-  }
-  function setCaretPosition(ctrl, pos){
-    if(ctrl.setSelectionRange)
-    {
-      ctrl.focus();
-      ctrl.setSelectionRange(pos,pos);
-    }
-    else if (ctrl.createTextRange) {
-      var range = ctrl.createTextRange();
-      range.collapse(true);
-      range.moveEnd('character', pos);
-      range.moveStart('character', pos);
-      range.select();
+  function getPos(element) {
+    if ('selectionStart' in element) {
+      return element.selectionStart;
+    } else if (document.selection) {
+      element.focus();
+      var sel = document.selection.createRange();
+      var selLen = document.selection.createRange().text.length;
+      sel.moveStart('character', -element.value.length);
+      return sel.text.length - selLen;
     }
   }
 
+  function setPos(element, caretPos) {
+    if (element.createTextRange) {
+      var range = element.createTextRange();
+      range.move('character', caretPos);
+      range.select();
+    } else {
+      element.focus();
+      if (element.selectionStart !== undefined) {
+        element.setSelectionRange(caretPos, caretPos);
+      }
+    }
+  }
   return {
     carret: {
-      get: getCaretPosition,
-      set: setCaretPosition
+      get: getPos,
+      set: setPos
     }
   }
 });
@@ -57,15 +53,16 @@ Mask.directive('mask', function ($mask, maskUtils) {
           //  inputEl.focus(); //to focus input by clicking on text mask
           //});
           // masking
-          var mask, config, minLength;
-          var disableRender = false,
-              carretPosition = 0;
+          var mask, config, minLength, carretPos = 0;
+          var disableRender = false;
+
 
           function updateMask (val) {
             mask = val;
             config = $mask.get(mask);
             textWrap.text(config.template);
             minLength = config.schema[0].pos;
+            carretPos = minLength;
             ngModel.$render();
           }
           attrs.$observe('mask', updateMask);
@@ -74,10 +71,18 @@ Mask.directive('mask', function ($mask, maskUtils) {
           function clearValue (val) {
             return val.replace(/\s/g, '').substr(0, config.schema.length);
           }
+
+
+          var isCustomCarret = false, event;
+
           ngModel.$render = function () {
-            if (!disableRender) {
-              inputEl.val($mask.place(clearValue(ngModel.$viewValue), mask));
-            }
+            carretPos = maskUtils.carret.get(inputEl[0]);
+            console.log(carretPos, minLength);
+
+            carretPos = carretPos < minLength ? minLength : carretPos;
+            inputEl.val($mask.place(clearValue(ngModel.$viewValue), mask));
+            maskUtils.carret.set(inputEl[0], carretPos);
+
           };
           ngModel.$parsers.push(function (val) {
             ngModel.$render();
@@ -85,10 +90,33 @@ Mask.directive('mask', function ($mask, maskUtils) {
           });
 
           inputEl.bind('keydown', function (e) {
-            console.log($mask.clearPosition(maskUtils.carret.get(inputEl[0])));
-            //disableRender = true;
-            e.preventDefault();
-          })
+            event = e;
+            console.log(e.keyCode);
+            // backspace, delete, left , right
+            if ([8, 46, 37, 39].indexOf(e.keyCode) < 0 && ngModel.$modelValue.toString().length >= config.schema.length) e.preventDefault();
+            else ngModel.$render();
+          });
+          ////
+          ////  //if (e.keyCode == 8) isCustomCarret = (idx + 1) !== ngModel.$modelValue.toString().length;
+          ////  //else {
+          ////  //
+          ////  //}
+          ////
+          ////  //switch (e.keyCode) {
+          ////  //  case 8: //backspace
+          ////  //    carretPos--;
+          ////  //    break;
+          ////  //  case 49: //delete. stay in position
+          ////  //      break;
+          ////  //  default:
+          ////  //    carretPos++;
+          ////  //    break;
+          ////  //}
+          ////  //carretPos = maskUtils.carret.get(inputEl[0]);
+          ////
+          ////  //disableRender = true;
+          //  //e.preventDefault();
+          //})
         }
       }
     }
