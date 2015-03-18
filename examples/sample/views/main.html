@@ -1,17 +1,24 @@
-<div class="jumbotron" ng-init="test = 123; mask= '+380 (**) ###-##-##'">
+<div class="jumbotron" ng-init="test = 1234567890; mask= '+### (##) ###---##-##'">
   <form class="form">
       <div class="form-group">
           <label >Mask:</label>
           <input class="form-control" type="text" ng-model="mask"/>
       </div>
       <div class="form-group">
-          <input class="form-control" type="text" mask="{{mask}}" ng-model="test">
+          <input class="form-control" type="text" eb-caret="car"  mask="{{mask}}" ng-model="test">
           <!--<div class="mask-placeholder"></div>-->
       </div>
       <div class="form-group">
           <label for="">Clear model</label>
           <input class="form-control" ng-model="test">
+
           <!--<div class="mask-placeholder"></div>-->
       </div>
+    <div class="form-group">
+      <label for="">Carret</label>
+      <input class="form-control" ng-model="car.get"  ng-change="car.set = car.get">
+
+      <!--<div class="mask-placeholder"></div>-->
+    </div>
   </form>
 </div>

@@ -16,7 +16,8 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'ngMask'
+    'ngMask',
+    'eb.caret'
   ])
   .config(function ($routeProvider) {
     $routeProvider

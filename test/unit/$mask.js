@@ -89,11 +89,13 @@ describe('ngMask', function() {
     describe('parce', function () {
       it ('should get schema from mask', function () {
         for (var mask in valid) {
+          if (!valid.hasOwnProperty(mask)) continue;
           expect($mask.parse(mask).schema).toEqual(valid[mask].schema);
         }
       });
       it ('should get template from mask', function () {
         for (var mask in valid) {
+          if (!valid.hasOwnProperty(mask)) continue;
           expect($mask.parse(mask).template).toEqual(valid[mask].template);
         }
       });
@@ -147,6 +149,7 @@ describe('ngMask', function() {
         expect($mask.clearPosition(8,'2#23#123123#')).toEqual(1);
       });
       it ('should return index of the nearest valid pattern position on the right side', function () {
+        expect($mask.clearPosition(1,'2123##223#', true)).toEqual(0);
         expect($mask.clearPosition(3,'2##223#', true)).toEqual(2);
         expect($mask.clearPosition(2,'2#21##', true)).toEqual(1);
         expect($mask.clearPosition(3,'2##8#3##', true)).toEqual(2);
@@ -167,6 +170,25 @@ describe('ngMask', function() {
         expect($mask.dirtyPosition(0, '232#')).toEqual(3);
         expect($mask.dirtyPosition(1, '232#23#')).toEqual(6);
       });
+    });
+    describe('nextPosition', function () {
+      it ('should return Undefined for empty mask', function () {
+        expect($mask.nextPosition(1,'')).not.toBeDefined();
+      });
+      it ('should return Undefined if place was not found', function () {
+        expect($mask.nextPosition(1,'123')).not.toBeDefined();
+        expect($mask.nextPosition(1,'3#')).not.toBeDefined();
+      });
+      it ('should calculate next position', function () {
+        expect($mask.nextPosition(2,'22#2#')).toEqual(4);
+        expect($mask.nextPosition(1,'22#2#')).toEqual(4);
+        expect($mask.nextPosition(2,'22##2#')).toEqual(3);
+      });
+      it ('should calculate prev position', function () {
+        expect($mask.nextPosition(4,'22#2#', false)).toEqual(2);
+        expect($mask.nextPosition(10,'2122#12 32#', false)).toEqual(4);
+        expect($mask.nextPosition(4,'# # #', false)).toEqual(2);
+      })
     })
   });
 });

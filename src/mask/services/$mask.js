@@ -38,7 +38,6 @@ Mask.service('$mask', function () {
   }
   function clearWithTemplate (dirtyValue, template, schema) {
     dirtyValue = (dirtyValue || '').toString();
-    template = template.split('');
     var res = [];
     schema.forEach(function (val, idx) {
       res[idx] = dirtyValue[val.pos];
@@ -49,10 +48,16 @@ Mask.service('$mask', function () {
     space = typeof space !== 'undefined' ? space.toString() : '\u00a0';
     return new Array(mask.length+1).join(space);
   }
+  function placeWithTemplateFull (val, template, schema, space) {
+    return fillTemplate(val, placer(template, space), schema);
+  }
   function placeWithTemplate (val, template, schema, space) {
-    var clearTemplate = placer(template, space);
     var l = (val.length > schema.length) ? schema.length : (val.length || 1);
-    return fillTemplate(val, clearTemplate, schema).substr(0, schema[l-1].pos + !!val.length);
+    return placeWithTemplateFull(val, template, schema, space).substr(0, schema[l-1].pos + !!val.length);
+  }
+  function placeWithTemplateToTheNext (val, template, schema, space) {
+    var l = (val.length > schema.length) ? schema.length : (val.length || 1);
+    return placeWithTemplateFull(val, template, schema, space).substr(0, (schema[l] || {}).pos || template.length);
   }
   function hasMask (mask) {
     return !!__cache[mask];
@@ -74,6 +79,14 @@ Mask.service('$mask', function () {
   function place (val, mask, char) {
     var config = parse(mask);
     return placeWithTemplate(val, config.template, config.schema, char);
+  }
+  function placeFull (val, mask, char) {
+    var config = parse(mask);
+    return placeWithTemplateFull(val, config.template, config.schema, char);
+  }
+  function placeToTheNext (val, mask, char) {
+    var config = parse(mask);
+    return placeWithTemplateToTheNext(val, config.template, config.schema, char);
   }
   function templateFromMask (mask) {
     return parse(mask).template;
@@ -105,6 +118,10 @@ Mask.service('$mask', function () {
     if (clearIdx < 0 || !mask || clearIdx > config.schema.length-1) return;
     return config.schema[clearIdx].pos;
   }
+  function nextPosition (dirtyIdx, mask, forward) {
+    forward = (typeof forward === 'undefined') ?  true : forward;
+    return dirtyPosition(clearPosition(dirtyIdx, mask) + (forward ? 1: -1), mask);
+  }
   return {
     fill: fill,
     get: parse,
@@ -112,8 +129,11 @@ Mask.service('$mask', function () {
     clear: clear,
     clearPosition: clearPosition,
     dirtyPosition: dirtyPosition,
+    nextPosition: nextPosition,
     has: hasMask,
     place: place,
+    placeFull: placeFull,
+    placeToTheNext: placeToTheNext,
     placer: placer,
     template: templateFromMask
   };
