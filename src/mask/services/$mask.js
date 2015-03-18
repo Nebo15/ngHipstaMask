@@ -91,6 +91,7 @@ Mask.service('$mask', function () {
   function templateFromMask (mask) {
     return parse(mask).template;
   }
+
   // get position in clear value from position in dirty value
   function clearPosition (idx, mask, forward) {
     forward = typeof forward !== 'undefined' ? forward : false; // true

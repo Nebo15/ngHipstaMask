@@ -1,38 +1,20 @@
 'use strict';
 
-Mask.service('maskUtils', function () {
-  function getPos(element) {
-    if ('selectionStart' in element) {
-      return element.selectionStart;
-    } else if (document.selection) {
-      element.focus();
-      var sel = document.selection.createRange();
-      var selLen = document.selection.createRange().text.length;
-      sel.moveStart('character', -element.value.length);
-      return sel.text.length - selLen;
-    }
-  }
-
-  function setPos(element, caretPos) {
-    if (element.createTextRange) {
-      var range = element.createTextRange();
-      range.move('character', caretPos);
-      range.select();
-    } else {
-      element.focus();
-      if (element.selectionStart !== undefined) {
-        element.setSelectionRange(caretPos, caretPos);
-      }
-    }
-  }
+Mask.directive('phoneMask', function ($maskPhone) {
   return {
-    carret: {
-      get: getPos,
-      set: setPos
+    restrict: 'A',
+    require: '^ngModel',
+    scope: {
+      phoneOptions: '='
+    },
+    link: function (scope, el, attrs, ngModel) {
+      ngModel.$viewChangeListeners.push(function (val) {
+        scope.phoneOptions = $maskPhone.search(ngModel.$modelValue);
+      });
     }
   }
-})
-Mask.directive('mask', function ($mask, maskUtils) {
+});
+Mask.directive('mask', function ($mask, $maskCaret) {
   return {
     restrict: 'A',
     require: '^ngModel',
@@ -48,7 +30,6 @@ Mask.directive('mask', function ($mask, maskUtils) {
       var mask, config, minLength;
 
       function updateMask (val) {
-        console.log("update mask ", val);
         mask = val;
         config = $mask.get(mask);
         textWrap.text(config.template);
@@ -59,7 +40,7 @@ Mask.directive('mask', function ($mask, maskUtils) {
       updateMask (attrs['mask']);
 
       function clearValue (val) {
-        return val.replace(/[\s\*]/g, '').substr(0, config.schema.length);
+        return (val || '').replace(/[\s\*]/g, '').substr(0, config.schema.length);
       }
 
       var event = {},
@@ -88,7 +69,7 @@ Mask.directive('mask', function ($mask, maskUtils) {
       }
 
       function updateCarretPosition () {
-        carretPosition = maskUtils.carret.get(inputEl[0]);
+        carretPosition = $maskCaret.get(inputEl[0]);
         onCarretUpdate(carretPosition);
       }
       updateCarretPosition();
@@ -109,7 +90,7 @@ Mask.directive('mask', function ($mask, maskUtils) {
         var placed = fnPlace (cleared, mask, spacer);
 
         inputEl.val(placed);
-        maskUtils.carret.set(inputEl[0], nextCarretPosition);
+        $maskCaret.set(inputEl[0], nextCarretPosition);
       };
       ngModel.$parsers.push(function (val) {
         ngModel.$render();
@@ -119,8 +100,8 @@ Mask.directive('mask', function ($mask, maskUtils) {
       inputEl.bind('keydown', function (e) {
         event = e;
         // preventing filling on fulled template
-        var currentPost = maskUtils.carret.get(inputEl[0]);
-        if ([8, 46, 37, 39].indexOf(e.keyCode) < 0 && ngModel.$modelValue.toString().length >= config.schema.length) {
+        var currentPost = $maskCaret.get(inputEl[0]);
+        if ([8, 46, 37, 39].indexOf(e.keyCode) < 0 && (ngModel.$modelValue || '').toString().length >= config.schema.length) {
           e.preventDefault();
         } else if (currentPost <= minLength && [8, 37].indexOf(e.keyCode) > -1) { //min mask length
           e.preventDefault()
@@ -141,10 +122,10 @@ Mask.directive('mask', function ($mask, maskUtils) {
 
       inputEl.bind('mouseup', function (e) {
         event = e;
-        var currentPost = maskUtils.carret.get(inputEl[0]);
-        if (currentPost <= minLength) maskUtils.carret.set(inputEl[0], minLength);
+        var currentPost = $maskCaret.get(inputEl[0]);
+        if (currentPost <= minLength) $maskCaret.set(inputEl[0], minLength);
         else if (isAccessory(currentPost)) {
-          maskUtils.carret.set(inputEl[0], $mask.nextPosition(currentPost,mask, true));
+          $maskCaret.set(inputEl[0], $mask.nextPosition(currentPost,mask, true));
         }
         else updateCarretPosition();
       });
