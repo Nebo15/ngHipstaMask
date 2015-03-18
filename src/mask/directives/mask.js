@@ -1,20 +1,5 @@
 'use strict';
 
-Mask.directive('phoneMask', function ($maskPhone) {
-  return {
-    restrict: 'A',
-    require: '^ngModel',
-    scope: {
-      phoneOptions: '='
-    },
-    link: function (scope, el, attrs, ngModel) {
-      scope.phoneOptions = $maskPhone.search('');
-      ngModel.$viewChangeListeners.push(function (val) {
-        scope.phoneOptions = $maskPhone.search(ngModel.$modelValue);
-      });
-    }
-  }
-});
 Mask.directive('mask', function ($mask, $maskCaret) {
   return {
     restrict: 'A',
@@ -125,7 +110,6 @@ Mask.directive('mask', function ($mask, $maskCaret) {
         event = e;
 
         var currentPost = $maskCaret.get(inputEl[0]);
-        console.log('mouseup', minLength, currentPost, ngModel);
         if (!ngModel.$viewValue || !!ngModel.$modelView && ngModel.$modelView.toString().length == 0) $maskCaret.set(inputEl[0], minLength);
         else if (currentPost <= minLength) $maskCaret.set(inputEl[0], minLength);
         else if (isAccessory(currentPost)) {
