@@ -8,6 +8,7 @@ Mask.directive('phoneMask', function ($maskPhone) {
       phoneOptions: '='
     },
     link: function (scope, el, attrs, ngModel) {
+      scope.phoneOptions = $maskPhone.search('');
       ngModel.$viewChangeListeners.push(function (val) {
         scope.phoneOptions = $maskPhone.search(ngModel.$modelValue);
       });
@@ -122,10 +123,14 @@ Mask.directive('mask', function ($mask, $maskCaret) {
 
       inputEl.bind('mouseup', function (e) {
         event = e;
+
         var currentPost = $maskCaret.get(inputEl[0]);
-        if (currentPost <= minLength) $maskCaret.set(inputEl[0], minLength);
+        console.log('mouseup', minLength, currentPost, ngModel);
+        if (!ngModel.$viewValue || !!ngModel.$modelView && ngModel.$modelView.toString().length == 0) $maskCaret.set(inputEl[0], minLength);
+        else if (currentPost <= minLength) $maskCaret.set(inputEl[0], minLength);
         else if (isAccessory(currentPost)) {
-          $maskCaret.set(inputEl[0], $mask.nextPosition(currentPost,mask, true));
+          var next = $mask.nextPosition(currentPost,mask, true) || mask.length;
+          $maskCaret.set(inputEl[0], next);
         }
         else updateCarretPosition();
       });
