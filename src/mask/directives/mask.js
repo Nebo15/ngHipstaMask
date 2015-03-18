@@ -131,13 +131,13 @@ Mask.directive('mask', function ($mask, maskUtils) {
                 nextIdx;
             if (val < config.schema[0].pos) return;
 
-            var forward = [8, 37].indexOf(event.keyCode) < 0;
-            if (forward) { //looking for position of the next character and place carret at left side
-              nextIdx = $mask.nextPosition($mask.nextPosition(idx, mask, true), mask);
-              nextIdx = nextIdx || mask.length; // on finish symbol stay at the end
-            } else {//backspace. carret should be placed at right side from next deleting symbol.
+            var back = [8, 37].indexOf(event.keyCode) > -1;
+            if (back)  {//backspace. carret should be placed at right side from next deleting symbol.
               nextIdx = $mask.nextPosition(idx, mask, false) + 1;
               nextIdx = nextIdx || minLength;
+            } else { //looking for position of the next character and place carret at left side
+                nextIdx = $mask.nextPosition($mask.nextPosition(idx, mask, true), mask);
+                nextIdx = nextIdx || mask.length; // on finish symbol stay at the end
             }
             nextCarretPosition = nextIdx;
           }, true);
@@ -167,14 +167,12 @@ Mask.directive('mask', function ($mask, maskUtils) {
 
           inputEl.bind('keydown', function (e) {
             event = e;
+            console.log(e.keyCode);
             // preventing filling on fulled template
             var currentPost = maskUtils.carret.get(inputEl[0]);
-            console.log('keydown', currentPost);
             if ([8, 46, 37, 39].indexOf(e.keyCode) < 0 && ngModel.$modelValue.toString().length >= config.schema.length) {
-              console.log('max');
               e.preventDefault();
             } else if (currentPost <= minLength && [8, 37].indexOf(e.keyCode) > -1) { //min mask length
-              console.log('min');
               e.preventDefault()
             } else updateCarretPosition();
           });
