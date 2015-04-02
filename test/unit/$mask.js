@@ -210,35 +210,93 @@ describe('ngMask', function() {
       });
     });
 
-
-    //describe('clearPosition', function () {
-    //  it ('should return 0 position in empty mask', function () {
-    //    expect($mask.clearPosition(10,'')).toEqual(0);
-    //  });
-    //  it ('should return 0 on less idx, then minimum pattern idx', function () {
-    //    expect($mask.clearPosition(2,'12312312##')).toEqual(0);
-    //    expect($mask.clearPosition(2,'123##1312##')).toEqual(0);
-    //  });
-    //  it ('should return schema length if idx more, then schema max pos', function () {
-    //    expect($mask.clearPosition(4,'###123')).toEqual(2);
-    //    expect($mask.clearPosition(11,'123##1312#2323')).toEqual(2);
-    //  });
-    //  it ('should return index of the char in clear value', function () {
-    //    expect($mask.clearPosition(3,'2###')).toEqual(2);
-    //    expect($mask.clearPosition(2,'2###')).toEqual(1);
-    //    expect($mask.clearPosition(4,'2#23##')).toEqual(1);
-    //  });
-    //  it ('should return index of the nearest valid pattern position on the left side', function () {
-    //    expect($mask.clearPosition(3,'2#23##')).toEqual(0);
-    //    expect($mask.clearPosition(8,'2#23#123123#')).toEqual(1);
-    //  });
-    //  it ('should return index of the nearest valid pattern position on the right side', function () {
-    //    expect($mask.clearPosition(1,'2123##223#', true)).toEqual(0);
-    //    expect($mask.clearPosition(3,'2##223#', true)).toEqual(2);
-    //    expect($mask.clearPosition(2,'2#21##', true)).toEqual(1);
-    //    expect($mask.clearPosition(3,'2##8#3##', true)).toEqual(2);
-    //  });
-    //});
+    describe('clearPosition', function () {
+      var mask = '211#12#1#1';
+      it ('should return 0 position in empty mask', function () {
+        expect($mask.clearPosition(10,'')).toEqual(0);
+      });
+      describe(':left', function () {
+        var correct = [
+          {pos:0, value: 0},
+          {pos:1, value: 0},
+          {pos:2, value: 0},
+          {pos:3, value: 0},
+          {pos:4, value: 0},
+          {pos:5, value: 0},
+          {pos:6, value: 1},
+          {pos:7, value: 1},
+          {pos:8, value: 2},
+          {pos:9, value: 2},
+          {pos:10, value: 2}
+        ];
+        it ('should return 0 on less idx, then minimum pattern idx', function () {
+          [0,1,2].forEach(function (i) {
+            expect($mask.clearPosition(correct[i].pos,mask)).toEqual(correct[i].value);
+          })
+        });
+        it ('should return index of the char in clear value', function () {
+          [3,6,8].forEach(function (i) {
+            expect($mask.clearPosition(correct[i].pos,mask)).toEqual(correct[i].value);
+          });
+        });
+        it ('should return index of the nearest valid pattern position on the left side', function () {
+          [4,5,7,9].forEach(function (i) {
+            expect($mask.clearPosition(correct[i].pos,mask)).toEqual(correct[i].value);
+          });
+        });
+        it ('should return schema length if idx more, then schema max pos', function () {
+          [10].forEach(function (i) {
+            expect($mask.clearPosition(correct[i].pos,mask)).toEqual(correct[i].value);
+          });
+        });
+      });
+      describe (':right', function () {
+        var correct = [
+          {pos:0, value: 0},
+          {pos:1, value: 0},
+          {pos:2, value: 0},
+          {pos:3, value: 0},
+          {pos:4, value: 1},
+          {pos:5, value: 1},
+          {pos:6, value: 1},
+          {pos:7, value: 2},
+          {pos:8, value: 2},
+          {pos:9, value: 2}
+        ];
+        it ('should return index of the nearest valid pattern position on the right side', function () {
+          correct.forEach(function (i) {
+            expect($mask.clearPosition(i.pos, mask, true)).toEqual(i.value);
+          })
+        });
+      });
+      describe ('static', function () {
+        var mask = '12#\\(#\\-\\=#';
+        // template = 12#(#-=#
+        //describe(':left', function () {
+        //  var correct = [
+        //    {p: 0, val: 0},
+        //    {p: 1, val: 0},
+        //    {p: 2, val: 0},
+        //    {p: 3, val: 0},
+        //    {p: 4, val: 1},
+        //    {p: 5, val: 1},
+        //    {p: 6, val: 1},
+        //    {p: 7, val: 2},
+        //    {p: 8, val: 2}
+        //  ];
+        //  it ('should support static symbols', function () {
+        //    correct.forEach(function (i) {
+        //      console.log('failed on pos', i.p, $mask.clearPosition(i.p, mask));
+        //      expect($mask.clearPosition(i.p, mask)).toEqual(i.val);
+        //    })
+        //  });
+        //})
+      });
+      it ('should support static symbols', function () {
+        expect($mask.clearPosition(1,'\\+212\\(3##2213\\+\\=\\)23#')).toEqual(0);
+        expect($mask.clearPosition(9,'\\+212\\(3##2213\\+\\=\\)23#')).toEqual(1);
+      })
+    });
     //describe('dirtyPosition', function () {
     //  it ('should return undefined if value is less 0', function () {
     //    expect($mask.dirtyPosition(-1, '1###')).not.toBeDefined();

@@ -163,7 +163,6 @@ Mask.service('$mask', function () {
   // get position in clear value from position in dirty value
   function clearPosition (idx, mask, forward) {
     forward = typeof forward !== 'undefined' ? forward : false; // true
-
     var config = parse(mask);
 
     var clearIdx = 0,
@@ -171,15 +170,19 @@ Mask.service('$mask', function () {
     if (idx < schema[0].pos) return 0;
     if (idx >= schema[schema.length - 1].pos) return schema.length - 1;
 
-    for (var i = 0, l = schema.length; i < l; i++) {
-      if (schema[i].pos <= idx) {
-        clearIdx = i;
-      } else {
-        clearIdx = forward ? i : clearIdx;
-        break;
-      }
-    }
+    for (var i = 0, statics = 0, curSchema, l = schema.length; i < l; i++) {
+      curSchema = schema[i];
 
+      if (idx > curSchema.pos) {
+        if (curSchema.static) statics++;
+        continue;
+      }
+
+      clearIdx = i - statics;
+      if (clearIdx > 0 && idx < curSchema.pos && !forward) clearIdx--;
+
+      break;
+    }
     return clearIdx;
   }
   function dirtyPosition (clearIdx, mask) {
