@@ -29,12 +29,26 @@
       {{testTemplate | template}}
     </div>
     <div class="form-group">
-      <label for="">Templated</label>
+      <label for="">Clear value</label>
       <input class="form-control" ng-model="testTemplateValue">
     </div>
     <div class="form-group">
-      <label for="">Template Cleared</label>
+      <label for="">Clear value</label>
+      <input class="form-control" mask="{{testTemplate}}" ng-model="testTemplateValue">
+    </div>
+    <div class="form-group">
+      <label for="">Masked</label>
       {{testTemplateValue | masked: testTemplate}}
+      <!--<input class="form-control" mask="{{testTemplate}}" ng-model="testTemplateValue">-->
+    </div>
+    <div class="form-group">
+      <label for="">Cleared</label>
+      {{testTemplateValue | cleared: testTemplate}}
+      <!--<input class="form-control" mask="{{testTemplate}}" ng-model="testTemplateValue">-->
+    </div>
+    <div class="form-group">
+      <label for="">Placed</label>
+      {{testTemplateValue | placed: testTemplate: '*'}}
       <!--<input class="form-control" mask="{{testTemplate}}" ng-model="testTemplateValue">-->
     </div>
     <div class="form-group">

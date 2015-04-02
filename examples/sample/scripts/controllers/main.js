@@ -14,8 +14,8 @@ angular.module('projectsApp')
       'AngularJS',
       'Karma'
     ];
-    $scope.testTemplate = '\\+###\\(##\\)###-##-##';
-    $scope.testTemplateValue = '+380(93)2685446';
+    $scope.testTemplate = '\\+###(##)###-##-##';
+    $scope.testTemplateValue = '+380932685446';
     $scope.$watch('testTemplate', function (val) {
       $scope.testTemplateParsed = $mask.parse(val);
     });

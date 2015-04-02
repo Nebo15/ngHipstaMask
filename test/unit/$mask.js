@@ -25,6 +25,23 @@ describe('ngMask', function() {
         ],
         template: '+380(__)___-__-__'
       },
+      '\\+380\\(##\\)###-##-##': {
+        schema: [
+          { pos: 0, pattern: /\+/, static: true },
+          { pos: 4, pattern: /\(/, static: true },
+          { pos: 5, pattern: /\d/ },
+          { pos: 6, pattern: /\d/ },
+          { pos: 7, pattern: /\)/, static: true },
+          { pos: 8, pattern: /\d/ },
+          { pos: 9, pattern: /\d/ },
+          { pos: 10, pattern: /\d/ },
+          { pos: 12, pattern: /\d/ },
+          { pos: 13, pattern: /\d/ },
+          { pos: 15, pattern: /\d/ },
+          { pos: 16, pattern: /\d/ }
+        ],
+        template: '+380(__)___-__-__'
+      },
       '': {
         schema: [{ pos: 0}],
         template: ''
@@ -49,87 +66,151 @@ describe('ngMask', function() {
       console.log(expect(true).toBeTruthy);
       //expect(true).toBe(true);
     });
-    //var $mask;
-    //beforeEach(inject(function (_$mask_) { //injecting $mask service
-    //}));
-    //describe('fill', function () {
-    //  it ('should fill value to mask', function () {
-    //    expect($mask.fill('987654321', '+380(##)###-##-##')).toEqual("+380(98)765-43-21");
-    //  });
-    //  it ('should fill not fill full value if mask is less, then value length', function () {
-    //    expect($mask.fill('987654321','+380(##)###')).toEqual("+380(98)765");
-    //  });
-    //  it ('should support multi space', function () {
-    //    expect($mask.fill('98765','+380(##)##   #')).toEqual('+380(98)76   5');
-    //  });
-    //  it ('should fill only valid data', function () {
-    //    expect($mask.fill('987a5','+380(##)###')).toEqual('+380(98)7__');
-    //  });
-    //});
-    //describe('clear', function () {
-    //  it ('should get data from dirty string by mask', function () {
-    //    expect($mask.clear("+380(98)765-43-21", '+380(##)###-##-##')).toEqual('987654321');
-    //  });
-    //  it ('should support multi spaces', function () {
-    //    expect($mask.clear("     5", '     #')).toEqual('5');
-    //  });
-    //  it ('should clear data with special chars', function () {
-    //    expect($mask.clear("+380(98)765-43-21", '\+380(##)###-##-##')).toEqual('+987654321');
-    //  });
-    //});
-    //describe('place', function () {
-    //  it ('should place value to mask and replace accessory symbols with spaces', function () {
-    //    expect($mask.place('12', '38##as',' ')).toEqual('  12');
-    //  });
-    //  it ('should remove all spaces above placed value', function () {
-    //    expect($mask.place('12', '38##as    ',' ')).toEqual('  12');
-    //  });
-    //  it ('should support custom spacec char', function () {
-    //    expect($mask.place('12', '38##as    ','a')).toEqual('aa12');
-    //  });
-    //});
-    //
-    //describe('parce', function () {
-    //  it ('should get schema from mask', function () {
-    //    for (var mask in valid) {
-    //      if (!valid.hasOwnProperty(mask)) continue;
-    //      expect($mask.parse(mask).schema).toEqual(valid[mask].schema);
-    //    }
-    //  });
-    //  it ('should get template from mask', function () {
-    //    for (var mask in valid) {
-    //      if (!valid.hasOwnProperty(mask)) continue;
-    //      expect($mask.parse(mask).template).toEqual(valid[mask].template);
-    //    }
-    //  });
-    //});
-    //describe('placer', function () {
-    //  it ('should return full placer for mask', function () {
-    //    expect($mask.placer('###',' ')).toEqual('   ');
-    //  });
-    //  it ('should support custom spacer', function () {
-    //    expect($mask.placer('###','a')).toEqual('aaa');
-    //  });
-    //  it ('should support empty mask', function () {
-    //    expect($mask.placer('','a')).toEqual('');
-    //  });
-    //  it ('should support placing with pattern symbols ', function () {
-    //    expect($mask.placer('###','#')).toEqual('###');
-    //  });
-    //});
-    //describe('template', function () {
-    //  it ('should return template for mask', function () {
-    //    for (var mask in valid) {
-    //      expect($mask.template(mask)).toEqual(valid[mask].template);
-    //    }
-    //  });
-    //  it ('should support empty mask', function () {
-    //    expect($mask.template('')).toEqual('');
-    //  });
-    //  it ('should support mask that have not placements', function () {
-    //    expect($mask.template('123')).toEqual('123');
-    //  });
-    //});
+    var $mask;
+      beforeEach(inject(function (_$mask_) { //injecting $mask service
+    }));
+    describe('parce', function () {
+      it ('should get schema from mask', function () {
+        for (var mask in valid) {
+          if (!valid.hasOwnProperty(mask)) continue;
+          expect($mask.parse(mask).schema).toEqual(valid[mask].schema);
+        }
+      });
+      it ('should get template from mask', function () {
+        for (var mask in valid) {
+          if (!valid.hasOwnProperty(mask)) continue;
+          expect($mask.parse(mask).template).toEqual(valid[mask].template);
+        }
+      });
+    });
+    describe('fill', function () {
+      it ('should fill value to mask', function () {
+        expect($mask.fill('987654321', '+380(##)###-##-##')).toEqual("+380(98)765-43-21");
+      });
+      it ('should fill not fill full value if mask is less, then value length', function () {
+        expect($mask.fill('987654321','+380(##)###')).toEqual("+380(98)765");
+      });
+      it ('should support multi space', function () {
+        expect($mask.fill('98765','+380(##)##   #')).toEqual('+380(98)76   5');
+      });
+      it ('should fill only valid data', function () {
+        expect($mask.fill('987a5','+380(##)###')).toEqual('+380(98)7__');
+      });
+      it ('should work with escaped chars', function () {
+        expect($mask.fill('1', '\\+380(##)')).toEqual("+380(__)");
+        expect($mask.fill('+1', '\\+380(##)')).toEqual("+380(1_)");
+        expect($mask.fill('+380(93)2685446', '\\+###\\(##\\)### ## ##')).toEqual("+380(93)268 54 46");
+      });
+    });
+    describe('clear', function () {
+      it ('should get data from dirty string by mask', function () {
+        expect($mask.clear("+380(98)765-43-21", '+380(##)###-##-##')).toEqual('987654321');
+      });
+      it ('should support multi spaces', function () {
+        expect($mask.clear("     5", '     #')).toEqual('5');
+      });
+      it ('should clear data with special chars', function () {
+        expect($mask.clear("+380(98)765-43-21", '\\+380(##)###-##-##')).toEqual('+987654321');
+      });
+    });
+    describe('place', function () {
+      it ('should place value to mask and replace accessory symbols with spaces', function () {
+        expect($mask.place('12', '38##as',' ')).toEqual('  12');
+      });
+      it ('should remove all spaces above placed value', function () {
+        expect($mask.place('12', '38##as    ',' ')).toEqual('  12');
+      });
+      it ('should support custom space char', function () {
+        expect($mask.place('12', '38##as    ','a')).toEqual('aa12');
+      });
+      it ('should support support accessory chars', function () {
+        expect($mask.place('+12', '\\+38##as    ','a')).toEqual('+aa12');
+      });
+      it ('should support support accessory chars', function () {
+        expect($mask.place('+380(93', '\\+###\\(##)###-##-##    ','a')).toEqual('+380(93');
+      });
+    });
+    describe('placer', function () {
+      it ('should return full placer for mask', function () {
+        expect($mask.placer('###','*')).toEqual('***');
+      });
+      it ('should support custom spacer', function () {
+        expect($mask.placer('###','a')).toEqual('aaa');
+      });
+      it ('should support empty mask', function () {
+        expect($mask.placer('','a')).toEqual('');
+      });
+      it ('should support placing with pattern symbols ', function () {
+        expect($mask.placer('###','#')).toEqual('###');
+      });
+      it ('should support accessory symbols', function () {
+        expect($mask.placer('(###)','*')).toEqual('*****');
+      });
+      it ('should support escaping accessory symbols', function () {
+        expect($mask.placer('(\\+###)','*')).toEqual('******');
+        expect($mask.placer('\\(\\+###\\)','*')).toEqual('******');
+      });
+    });
+    describe('template', function () {
+      it ('should return template for mask', function () {
+        for (var mask in valid) {
+          expect($mask.template(mask)).toEqual(valid[mask].template);
+        }
+      });
+      it ('should support empty mask', function () {
+        expect($mask.template('')).toEqual('');
+      });
+      it ('should support mask that have not placements', function () {
+        expect($mask.template('123')).toEqual('123');
+      });
+    });
+    describe('place fns', function () {
+      var mask = '\\+###\\(##)   ###-##-##',
+        char = '*';
+      describe('place', function () {
+        it ('should support static symbols', function () {
+          expect($mask.place('+380(93)1231','\\+###\\(##\\)###-##-##','*')).toEqual('+380(93)123*1');
+        });
+      });
+      describe('placeFull', function () {
+        it ('should support static symbols', function () {
+          expect($mask.placeFull('+380(93123',mask,char)).toEqual('+380(93****123******');
+        });
+      });
+      describe('placeToTheNext', function () {
+        it ('should support static symbols', function () {
+          expect($mask.placeToTheNext('+380(93123',mask,char)).toEqual('+380(93****123*');
+        });
+        it ('should autocomplete static symbols', function () {
+          expect($mask.placeToTheNext('+380','\\+###\\(##',char)).toEqual('+380(');
+          var mask = '\\+###\\(##\\)   ###-##-##';
+          var steps = [
+            {model: '', value: '+'},
+            {model: '+', value: '+'},
+            {model: '+1', value: '+1'},
+            {model: '+12', value: '+12'},
+            {model: '+123', value: '+123('},
+            {model: '+123(', value: '+123('},
+            {model: '+123(4', value: '+123(4'},
+            {model: '+123(45', value: '+123(45)   '},
+            {model: '+123(45)', value: '+123(45)   '},
+            {model: '+123(45)6', value: '+123(45)   6'},
+            {model: '+123(45)67', value: '+123(45)   67'},
+            {model: '+123(45)678', value: '+123(45)   678 '},
+            {model: '+123(45)6789', value: '+123(45)   678 9'},
+            {model: '+123(45)67890', value: '+123(45)   678 90 '},
+            {model: '+123(45)678901', value: '+123(45)   678 90 1'},
+            {model: '+123(45)6789012', value: '+123(45)   678 90 12'}
+          ];
+          steps.forEach(function (item) {
+
+            expect($mask.placeToTheNext(item.model,mask,' ')).toEqual(item.value);
+          });
+        })
+      });
+    });
+
+
     //describe('clearPosition', function () {
     //  it ('should return 0 position in empty mask', function () {
     //    expect($mask.clearPosition(10,'')).toEqual(0);

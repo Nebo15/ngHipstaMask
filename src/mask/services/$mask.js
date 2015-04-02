@@ -9,6 +9,16 @@ Mask.service('$mask', function () {
     "\\\\": null
   };
 
+  function hasMask (mask) {
+    return !!__cache[mask];
+  }
+  function parse (mask) {
+    if (!hasMask(mask)) { // to avoid reparsing cached mask
+      __cache[mask] = parseMask (mask);
+    }
+    return __cache[mask];
+  }
+
   /**
    * Parsing mask for templating, clearing, etc.
    * @param mask
@@ -45,7 +55,6 @@ Mask.service('$mask', function () {
       matches.push(res);
       return ret; // mask symbol to placeholder char
     });
-    console.log(matches);
     if (!matches[0]) matches[0] = { pos: mask.length };
     return {
       schema: matches,
@@ -70,7 +79,6 @@ Mask.service('$mask', function () {
     }
     return template.join('');
   }
-
   /**
    * Clear data with mask
    * @param dirtyValue
@@ -86,10 +94,22 @@ Mask.service('$mask', function () {
     });
     return res.join('');
   }
+
+  /**
+   * Fill mask with spacer char
+   * @param mask
+   * @param space
+   * @returns {string}
+   */
   function placer (mask, space) {
+    var config = parse(mask);
     space = typeof space !== 'undefined' ? space.toString() : '\u00a0';
-    return new Array(mask.length+1).join(space);
+    return new Array(config.template.length+1).join(space);
   }
+
+  /**
+   * Placings
+  */
   function placeWithTemplateFull (val, template, schema, space) {
     return fillTemplate(val, placer(template, space), schema);
   }
@@ -97,19 +117,25 @@ Mask.service('$mask', function () {
     var l = (val.length > schema.length) ? schema.length : (val.length || 1);
     return placeWithTemplateFull(val, template, schema, space).substr(0, schema[l-1].pos + !!val.length);
   }
+
+  /**
+   * Placing to the next value with autocompleting for static value
+   * @param val
+   * @param template
+   * @param schema
+   * @param space
+   * @returns {string}
+   */
   function placeWithTemplateToTheNext (val, template, schema, space) {
-    var l = (val.length > schema.length) ? schema.length : (val.length || 1);
-    return placeWithTemplateFull(val, template, schema, space).substr(0, (schema[l] || {}).pos || template.length);
+    if (schema[val.length] && schema[val.length].static) val = val + template[schema[val.length].pos]; // autocomplete
+    var res = placeWithTemplateFull(val, template, schema, space);
+    return res.substr(0, (schema[val.length] || {}).pos);
   }
-  function hasMask (mask) {
-    return !!__cache[mask];
-  }
-  function parse (mask) {
-    if (!hasMask(mask)) { // to avoid reparsing cached mask
-      __cache[mask] = parseMask (mask);
-    }
-    return __cache[mask];
-  }
+
+
+
+
+  // Simplified outside interfaces by searching schema from cache
   function fill (val, mask) {
     var config = parse(mask);
     return fillTemplate(val, config.template, config.schema);

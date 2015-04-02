@@ -7,7 +7,7 @@
  * will return '      098  123'
  */
 Mask.filter('placed', function ($mask) {
-  return function (val, mask) {
-    return $mask.place(val, mask);
+  return function (val, mask, spacer) {
+    return $mask.place(val, mask, spacer);
   }
 });
