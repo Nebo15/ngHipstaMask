@@ -5,37 +5,79 @@ Mask.service('$mask', function () {
   var __cache = {};
   var patterns = {
     '#': /\d/,
-    '*': /\w/
+    '*': /\w/,
+    "\\\\": null
   };
+
+  /**
+   * Parsing mask for templating, clearing, etc.
+   * @param mask
+   * @returns {{schema: Array, template: string}}
+   */
   function parseMask (mask) {
     //analyse inserting position
     var matches = [],
       template;
 
     mask = mask.replace(/\s/g,'\u00a0');
+    var spacer = '_';
     var reg = new RegExp('['+Object.keys(patterns).join('')+']', 'g');
+
+    var res, ret, pattern, isStatic, statics = 0;
     template = mask.replace(reg, function (val, index) {
-      matches.push({ // save position of masked symbol and verification pattern to config
-        pos: index,
-        pattern: patterns[val]
-      });
-      return '_'; // mask symbol to placeholder char
+
+      ret = spacer;
+      pattern = patterns[val];
+      isStatic = false;
+
+      if (val == '\\') {
+        index++;
+        statics++;
+        ret = '';
+        isStatic = true;
+        pattern = new RegExp('\\'+mask[index]);
+      }
+      res = { // save position of masked symbol and verification pattern to config
+        pos: index-statics, // offset to the left for count of the escaping symbols '\'
+        pattern: pattern
+      };
+      if (isStatic) res.static = isStatic;
+      matches.push(res);
+      return ret; // mask symbol to placeholder char
     });
+    console.log(matches);
     if (!matches[0]) matches[0] = { pos: mask.length };
     return {
       schema: matches,
       template: template
     };
   }
+
+  /**
+   * Insert model value to mask
+   * @param val
+   * @param template
+   * @param schema
+   * @returns {string}
+   */
   function fillTemplate (val, template, schema) {
     val = (val || '').toString();
     template = template.split('');
-    for (var i = 0, l = (val.length > schema.length) ? schema.length : val.length; i<l; i++) {
-      if (!schema[i].pattern || !schema[i].pattern.test(val[i])) break;
-      template[schema[i].pos] = val[i];
+    for (var i = 0, l = val.length; i<l; i++) {
+      if (!schema[i]) break; // schema less, then value
+      else if (!schema[i].static && !schema[i].pattern || !schema[i].pattern.test(val[i])) break; // don't insert if value is not matched with pattern OR not is static
+      else template[schema[i].pos] = val[i]; // replace if value is correct
     }
     return template.join('');
   }
+
+  /**
+   * Clear data with mask
+   * @param dirtyValue
+   * @param template
+   * @param schema
+   * @returns {string}
+   */
   function clearWithTemplate (dirtyValue, template, schema) {
     dirtyValue = (dirtyValue || '').toString();
     var res = [];

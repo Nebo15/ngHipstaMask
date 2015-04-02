@@ -1,24 +1,45 @@
 <div class="jumbotron" ng-init="test = 1234567890; mask= '+### (##) ###-##-##'">
   <form class="form">
-      <div class="form-group">
-          <label >Mask:</label>
-          <select ng-model="mask">
-            <option value='+### (##) ###-##-##' selected>+### (##) ###-##-##</option>
-            <option value="+### (##) ###-####">+### (##) ###-####</option>
-            <option value="+## (###) ###-####">+## (###) ###-####</option>
-            <option value="+# (####) #####-##">+# (####) #####-##</option>
-          </select>
-      </div>
-      <div class="form-group">
-          <input class="form-control" type="text" mask="{{mask}}" ng-model="test">
-      </div>
+    <!--<div class="form-group">-->
+        <!--<label >Mask:</label>-->
+        <!--<select ng-model="mask">-->
+          <!--<option value='+### (##) ###-##-##' selected>+### (##) ###-##-##</option>-->
+          <!--<option value="+### (##) ###-####">+### (##) ###-####</option>-->
+          <!--<option value="+## (###) ###-####">+## (###) ###-####</option>-->
+          <!--<option value="+# (####) #####-##">+# (####) #####-##</option>-->
+        <!--</select>-->
+    <!--</div>-->
+    <!--<div class="form-group">-->
+        <!--<input class="form-control" type="text" mask="{{mask}}" ng-model="test">-->
+    <!--</div>-->
+    <!--<div class="form-group">-->
+      <!--<label for="">Phone number</label>-->
+      <!--<input class="form-control" phone-mask phone-options="options" mask="{{options.mask}}" ng-model="phoneNumber">-->
+    <!--</div>-->
+    <!--<div class="form-group">-->
+        <!--<label for="">Credit card</label>-->
+        <!--<input class="form-control" mask="#### #### #### ####" ng-model="credit">-->
+    <!--</div>-->
     <div class="form-group">
-      <label for="">Phone number</label>
-      <input class="form-control" phone-mask phone-options="options" mask="{{options.mask}}" ng-model="phoneNumber">
+      <label for="">Template</label>
+      <input class="form-control" ng-model="testTemplate">
     </div>
     <div class="form-group">
-        <label for="">Credit card</label>
-        <input class="form-control" mask="#### #### #### ####" ng-model="credit">
+      <label for="">Templated</label>
+      {{testTemplate | template}}
+    </div>
+    <div class="form-group">
+      <label for="">Templated</label>
+      <input class="form-control" ng-model="testTemplateValue">
+    </div>
+    <div class="form-group">
+      <label for="">Template Cleared</label>
+      {{testTemplateValue | masked: testTemplate}}
+      <!--<input class="form-control" mask="{{testTemplate}}" ng-model="testTemplateValue">-->
+    </div>
+    <div class="form-group">
+      <label for="">Template</label>
+      {{testTemplateParsed}}
     </div>
   </form>
 </div>
