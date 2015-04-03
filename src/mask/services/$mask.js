@@ -8,6 +8,7 @@ Mask.service('$mask', function () {
     '*': /\w/,
     "\\\\": null
   };
+  var _spacer = '_';
 
   function hasMask (mask) {
     return !!__cache[mask];
@@ -23,6 +24,11 @@ Mask.service('$mask', function () {
       return !item.static;
     });
   }
+  function onlyStatic (schemas) {
+    return schemas.filter(function (item) {
+      return item.static === true;
+    });
+  }
 
   /**
    * Parsing mask for templating, clearing, etc.
@@ -35,13 +41,12 @@ Mask.service('$mask', function () {
       template;
 
     mask = mask.replace(/\s/g,'\u00a0');
-    var spacer = '_';
     var reg = new RegExp('['+Object.keys(patterns).join('')+']', 'g');
 
     var res, ret, pattern, isStatic, statics = 0;
     template = mask.replace(reg, function (val, index) {
 
-      ret = spacer;
+      ret = _spacer;
       pattern = patterns[val];
       isStatic = false;
 
@@ -112,17 +117,22 @@ Mask.service('$mask', function () {
     return new Array(config.template.length+1).join(space);
   }
 
+  function autocomplete (val, template, schema) {
+    if (schema[val.length] && schema[val.length].static) val = val + template[schema[val.length].pos]; // autocomplete
+    return val;
+  }
+
   /**
    * Placings
   */
-  function placeWithTemplateFull (val, template, schema, space) {
+  function placeWithTemplateFull (val, template, schema, space, auto) {
+    if (auto) val = autocomplete (val, template, schema);
     return fillTemplate(val, placer(template, space), schema);
   }
   function placeWithTemplate (val, template, schema, space) {
     var l = (val.length > schema.length) ? schema.length : (val.length || 1);
     return placeWithTemplateFull(val, template, schema, space).substr(0, schema[l-1].pos + !!val.length);
   }
-
   /**
    * Placing to the next value with autocompleting for static value
    * @param val
@@ -131,12 +141,11 @@ Mask.service('$mask', function () {
    * @param space
    * @returns {string}
    */
-  function placeWithTemplateToTheNext (val, template, schema, space) {
-    if (schema[val.length] && schema[val.length].static) val = val + template[schema[val.length].pos]; // autocomplete
-    var res = placeWithTemplateFull(val, template, schema, space);
+  function placeWithTemplateToTheNext (val, template, schema, space, auto) {
+    if (auto) val = autocomplete (val, template, schema);
+    var res = placeWithTemplateFull(val, template, schema, space, auto);
     return res.substr(0, (schema[val.length] || {}).pos);
   }
-
 
   // Simplified outside interfaces by searching schema from cache
   function fill (val, mask) {
@@ -151,18 +160,27 @@ Mask.service('$mask', function () {
     var config = parse(mask);
     return placeWithTemplate(val, config.template, config.schema, char);
   }
-  function placeFull (val, mask, char) {
+  function placeFull (val, mask, char, auto) {
     var config = parse(mask);
-    return placeWithTemplateFull(val, config.template, config.schema, char);
+    return placeWithTemplateFull(val, config.template, config.schema, char, auto);
   }
-  function placeToTheNext (val, mask, char) {
+  function placeToTheNext (val, mask, char, auto) {
     var config = parse(mask);
-    return placeWithTemplateToTheNext(val, config.template, config.schema, char);
+    return placeWithTemplateToTheNext(val, config.template, config.schema, char, auto);
   }
   function templateFromMask (mask) {
     return parse(mask).template;
   }
 
+  function isStaticCharByIdx (idx, mask) {
+    return onlyStatic(parse(mask).schema).filter(function (item) {
+      return item.pos == idx;
+    }).length > 0;
+  }
+  function isAccessoryCharByIdx (idx, mask) {
+    var config = parse(mask);
+    return config.template[idx] !== _spacer;
+  }
   // get position in clear value from position in dirty value
   function clearPosition (idx, mask, forward) {
     forward = typeof forward !== 'undefined' ? forward : false; // true
@@ -206,6 +224,8 @@ Mask.service('$mask', function () {
     placeFull: placeFull,
     placeToTheNext: placeToTheNext,
     placer: placer,
-    template: templateFromMask
+    template: templateFromMask,
+    isAccessoryCharByIdx: isAccessoryCharByIdx,
+    isStaticCharByIdx: isStaticCharByIdx
   };
 });

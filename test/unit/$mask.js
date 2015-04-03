@@ -176,13 +176,17 @@ describe('ngMask', function() {
         it ('should support static symbols', function () {
           expect($mask.placeFull('+380(93123',mask,char)).toEqual('+380(93****123******');
         });
+        it ('should autocomplete static symbols', function () {
+          expect($mask.placeFull('+380', '\\+###\\(##', char, true)).toEqual('+380(**');
+        });
+
       });
       describe('placeToTheNext', function () {
         it ('should support static symbols', function () {
           expect($mask.placeToTheNext('+380(93123',mask,char)).toEqual('+380(93****123*');
         });
         it ('should autocomplete static symbols', function () {
-          expect($mask.placeToTheNext('+380','\\+###\\(##',char)).toEqual('+380(');
+          expect($mask.placeToTheNext('+380','\\+###\\(##',char, true)).toEqual('+380(');
           var mask = '\\+###\\(##\\)   ###-##-##';
           var steps = [
             {model: '', value: '+'},
@@ -203,8 +207,7 @@ describe('ngMask', function() {
             {model: '+123(45)6789012', value: '+123(45)   678 90 12'}
           ];
           steps.forEach(function (item) {
-
-            expect($mask.placeToTheNext(item.model,mask,' ')).toEqual(item.value);
+            expect($mask.placeToTheNext(item.model,mask,' ', true)).toEqual(item.value);
           });
         })
       });
@@ -338,6 +341,13 @@ describe('ngMask', function() {
       it ('should support static symbols', function () {
         expect($mask.nextPosition(4,'2\\+2#\\)323\\((32#')).toEqual(12);
         expect($mask.nextPosition(4,'\\+\\/\\-3#23#')).toEqual(7);
+        expect($mask.nextPosition(4,'\\+###\\(##)###-##-##')).toEqual(5);
+      })
+    });
+    describe('isAccessoryCharByIdx', function () {
+      it ('should work great', function () {
+        expect($mask.isAccessoryCharByIdx(0,'#')).not.toBeTruthy();
+        expect($mask.isAccessoryCharByIdx(1,'#1')).toBeTruthy();
       })
     })
   });

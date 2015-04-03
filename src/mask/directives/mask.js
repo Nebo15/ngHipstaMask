@@ -1,6 +1,7 @@
 'use strict';
 
-Mask.directive ('mask', function ($mask, $maskCaret) {
+Mask.directive ('mask', function ($mask, $maskCaret, $log) {
+
   return {
     restrict: 'A',
     require: '^ngModel',
@@ -13,120 +14,121 @@ Mask.directive ('mask', function ($mask, $maskCaret) {
             textWrap = angular.element ('<div></div>').addClass ('mask-text'),
             inputWrap = angular.element ('<div></div>').addClass ('mask-input');
 
-
           overallWrap.append (textWrap).append (inputWrap);
-          overallWrap.insertBefore (inputEl);
+          overallWrap.insertBefore (el);
           inputWrap.append(inputEl);
 
-          var mask, config, minLength;
-
+          // updating mask info
+          var __mask, __config, __spacer = ' ', __stopRender = false, __isBack = false;
           function updateMask (val) {
-            mask = val;
-            config = $mask.get (mask);
-            textWrap.text (config.template);
-            minLength = config.schema[0].pos;
+            __mask = val;
+            __config = $mask.get (__mask);
+            textWrap.text (__config.template);
             ngModel.$render ();
           }
-
           attrs.$observe ('mask', updateMask);
           updateMask (attrs['mask']);
 
+          // Model behaviour
           function clearValue (val) {
-            return (val || '').replace (/[\s\*]/g, '').substr (0, config.schema.length);
+            return (val || '').replace (/[\s\*]/g, '').substr (0, __config.schema.length);
           }
-
-          var event = {},
-            clearedValue,
-            nextCarretPosition;
-
-          var spacer = ' ';
-
-          var carretPosition = null;
-
-          function onCarretUpdate (val) {
-            // verify if cursor can be placed where
-            var idx = val - 1, // symbol idx
-              nextIdx;
-            if (val < config.schema[0].pos) return;
-
-            var back = [8, 37].indexOf (event.keyCode) > -1;
-            if (back) {//backspace. carret should be placed at right side from next deleting symbol.
-              nextIdx = $mask.nextPosition (idx, mask, false) + 1;
-              nextIdx = nextIdx || minLength;
-            } else { //looking for position of the next character and place carret at left side
-              nextIdx = $mask.nextPosition ($mask.nextPosition (idx, mask, true), mask);
-              nextIdx = nextIdx || mask.length; // on finish symbol stay at the end
-            }
-            nextCarretPosition = nextIdx;
-          }
-
-          function updateCarretPosition () {
-            carretPosition = $maskCaret.get (inputEl[0]);
-            onCarretUpdate (carretPosition);
-          }
-
-          updateCarretPosition ();
-
-          ngModel.$render = function () {
+          function renderValue() {
 
             var value = ngModel.$viewValue || ngModel.$modelValue;
-            if (event.keyCode == 8 && ngModel.$modelValue == clearValue (value)) //deleted space char
-            {
-              value = value.split ('');
-              var toDelete = $mask.nextPosition (carretPosition - 1, mask, false);
-              if (toDelete) value[toDelete] = spacer;
-              value = value.join ('');
-            }
-
-            var fnPlace = event.keyCode !== 8 ? $mask.placeToTheNext : $mask.place;
             var cleared = clearValue (value);
-            var placed = fnPlace (cleared, mask, spacer);
-
+            var placed = (__isBack  ? $mask.place : $mask.placeToTheNext)(cleared, __mask, __spacer, !__isBack );
             inputEl.val (placed);
-            $maskCaret.set (inputEl[0], nextCarretPosition);
+          }
+
+          ngModel.$render = function () {
+            if (__stopRender) {
+              __stopRender = false;
+              return;
+            }
+            renderValue();
           };
           ngModel.$parsers.push (function (val) {
             ngModel.$render ();
             return clearValue (val);
           });
-
-          inputEl.bind ('keydown', function (e) {
-            event = e;
-            // preventing filling on fulled template
-            var currentPost = $maskCaret.get (inputEl[0]);
-            if ([8, 9, 13, 16, 17, 18, 46, 37, 39].indexOf (e.keyCode) < 0 && (ngModel.$modelValue || '').toString ().length >= config.schema.length) {
-              e.preventDefault ();
-            } else if (currentPost <= minLength && [8, 37].indexOf (e.keyCode) > -1) { //min mask length
-              e.preventDefault ()
-            } else updateCarretPosition ();
+          // store information about last used key
+          inputEl.bind('keydown', function (e) {
+            __isBack = [8,37].indexOf(e.keyCode) > -1;
+            if (!inputEl.val()) renderValue(); // autocomplete at start
+            if (ngModel.$viewValue.length < __config.template.length) {
+              console.log('keydown render', ngModel);
+              ngModel.$render();
+              __stopRender = true;
+            }
           });
 
-          function isAccessory (idx) {
-            var i, l;
-            for (i = 0, l = config.schema.length; i < l; i++) {
-              if (config.schema[i].pos < idx) continue;
-              if (config.schema[i].pos == idx) {
-                i = true;
-                break;
-              }
-            }
-            return i !== true;
-          }
+          //
+          /**
+          * Caret
+          */
+          //var fnRenderOld = ngModel.$render,
+          //    __caret;
+          //
+          //var __prevValue, __newValue;
+          //inputEl.bind('keydown', function (e) {
+          //  __caret = $maskCaret.get(inputEl[0]); // position of input symbol
+          //});
+          //inputEl.bind('keyup', function (e) {
+          //  __prevValue = __newValue;
+          //  __newValue = ngModel.$viewValue;
+          //  if (__prevValue === __newValue) {
+          //    console.log('the same after move');
+          //    if ($mask.isAccessoryCharByIdx(__caret, __mask)) {
+          //      console.log('last symbol after accessory', __caret, ngModel.$viewValue.length);
+          //      recalcCaret();
+          //    }
+          //  }
+          //});
+          //function calculateNextCaretPosition (caret) {
+          //  console.log ('calculateNextCaretPosition::', caret);
+          //  var pos = caret;
+          //  if ($mask.isAccessoryCharByIdx(caret, __mask)) { // next symbol is accessory
+          //    console.log('caret is before accessory symbol', caret);
+          //    pos = $mask.dirtyPosition($mask.clearPosition(caret, __mask, !__isBack), __mask) ;
+          //    if (__isBack) {
+          //      pos ++;
+          //      console.log('should move to the nearest left char: right side');
+          //    } else {
+          //
+          //      console.log('should move to the nearest right char: left side');
+          //    }
+          //  }
+          //  return pos;
+          //}
+          //
+          //function recalcCaret () {
+          //  $maskCaret.set(inputEl[0], calculateNextCaretPosition (__caret));
+          //}
+          //
+          //inputEl.bind('keyup', function (e) {
+          //  //__caret = $maskCaret.get(inputEl[0]); // position of input symbol
 
-          inputEl.bind ('mouseup', function (e) {
-            event = e;
+          //});
 
-            var currentPost = $maskCaret.get (inputEl[0]);
-            if (!ngModel.$viewValue && !ngModel.$modelValue || !!ngModel.$modelValue && ngModel.$modelValue.toString ().length == 0) {
-              $maskCaret.set (inputEl[0], minLength);
-            }
-            else if (currentPost <= minLength) $maskCaret.set (inputEl[0], minLength);
-            else if (isAccessory (currentPost)) {
-              var next = $mask.nextPosition (currentPost, mask, true) || mask.length;
-              $maskCaret.set (inputEl[0], next);
-            }
-            else updateCarretPosition ();
-          });
+          //function renderCaret () {
+          //  $log.info('render caret', ngModel);
+          //  __caret = $maskCaret.get(inputEl[0]); // position of input symbol
+          //
+          //  fnRenderOld();
+          //  var value = ngModel.$viewValue || ngModel.$modelValue;
+          //  var cleared = clearValue (value);
+          //  //var placed = $mask.placeFull(cleared, __mask, __spacer);
+          //  //inputEl.val (placed);
+          //
+          //  // cursor is at the end of view value
+          //  if (__caret < value.length) {
+          //    console.log('recalc', __caret, value.length);
+          //    recalcCaret();
+          //  }
+          //}
+          //
+          //ngModel.$render = renderCaret;
         }
       }
     }

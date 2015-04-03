@@ -8,14 +8,16 @@
  * Controller of the projectsApp
  */
 angular.module('projectsApp')
-  .controller('MainCtrl', function ($scope, $mask) {
+  .controller('MainCtrl', function ($scope, $mask, $maskCaret) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
       'Karma'
     ];
-    $scope.testTemplate = '\\+###(##)###-##-##';
-    $scope.testTemplateValue = '+380932685446';
+    $scope.testTemplate = '\\+###\\(##\\)###----##-##';
+    $scope.caret = 0;
+    $scope.car = $maskCaret;
+    $scope.testTemplateValue = '+380(93)23234';
     $scope.$watch('testTemplate', function (val) {
       $scope.testTemplateParsed = $mask.parse(val);
     });
