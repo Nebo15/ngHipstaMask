@@ -271,66 +271,74 @@ describe('ngMask', function() {
       });
       describe ('static', function () {
         var mask = '12#\\(#\\-\\=#';
-        // template = 12#(#-=#
-        //describe(':left', function () {
-        //  var correct = [
-        //    {p: 0, val: 0},
-        //    {p: 1, val: 0},
-        //    {p: 2, val: 0},
-        //    {p: 3, val: 0},
-        //    {p: 4, val: 1},
-        //    {p: 5, val: 1},
-        //    {p: 6, val: 1},
-        //    {p: 7, val: 2},
-        //    {p: 8, val: 2}
-        //  ];
-        //  it ('should support static symbols', function () {
-        //    correct.forEach(function (i) {
-        //      console.log('failed on pos', i.p, $mask.clearPosition(i.p, mask));
-        //      expect($mask.clearPosition(i.p, mask)).toEqual(i.val);
-        //    })
-        //  });
-        //})
+        //template = 12#(#-=#
+        describe(':left', function () {
+          var correct = [
+            {p: 0, val: 0},
+            {p: 1, val: 0},
+            {p: 2, val: 0},
+            {p: 3, val: 0},
+            {p: 4, val: 1},
+            {p: 5, val: 1},
+            {p: 6, val: 1},
+            {p: 7, val: 2},
+            {p: 8, val: 2}
+          ];
+          it ('should support static symbols', function () {
+            correct.forEach(function (i) {
+              console.log('failed on pos', i.p, $mask.clearPosition(i.p, mask));
+              expect($mask.clearPosition(i.p, mask)).toEqual(i.val);
+            })
+          });
+        })
       });
       it ('should support static symbols', function () {
         expect($mask.clearPosition(1,'\\+212\\(3##2213\\+\\=\\)23#')).toEqual(0);
         expect($mask.clearPosition(9,'\\+212\\(3##2213\\+\\=\\)23#')).toEqual(1);
       })
     });
-    //describe('dirtyPosition', function () {
-    //  it ('should return undefined if value is less 0', function () {
-    //    expect($mask.dirtyPosition(-1, '1###')).not.toBeDefined();
-    //  });
-    //  it ('should return undefined for empty mask', function () {
-    //    expect($mask.dirtyPosition(2, '')).not.toBeDefined();
-    //    expect($mask.dirtyPosition(0, '')).not.toBeDefined();
-    //  });
-    //  it ('should return undefined if idx is bigger then schema length', function () {
-    //    expect($mask.dirtyPosition(2, '#')).not.toBeDefined();
-    //  });
-    //  it ('should return position of schema char', function () {
-    //    expect($mask.dirtyPosition(0, '232#')).toEqual(3);
-    //    expect($mask.dirtyPosition(1, '232#23#')).toEqual(6);
-    //  });
-    //});
-    //describe('nextPosition', function () {
-    //  it ('should return Undefined for empty mask', function () {
-    //    expect($mask.nextPosition(1,'')).not.toBeDefined();
-    //  });
-    //  it ('should return Undefined if place was not found', function () {
-    //    expect($mask.nextPosition(1,'123')).not.toBeDefined();
-    //    expect($mask.nextPosition(1,'3#')).not.toBeDefined();
-    //  });
-    //  it ('should calculate next position', function () {
-    //    expect($mask.nextPosition(2,'22#2#')).toEqual(4);
-    //    expect($mask.nextPosition(1,'22#2#')).toEqual(4);
-    //    expect($mask.nextPosition(2,'22##2#')).toEqual(3);
-    //  });
-    //  it ('should calculate prev position', function () {
-    //    expect($mask.nextPosition(4,'22#2#', false)).toEqual(2);
-    //    expect($mask.nextPosition(10,'2122#12 32#', false)).toEqual(4);
-    //    expect($mask.nextPosition(4,'# # #', false)).toEqual(2);
-    //  })
-    //})
+    describe('dirtyPosition', function () {
+      it ('should return undefined if value is less 0', function () {
+        expect($mask.dirtyPosition(-1, '1###')).not.toBeDefined();
+      });
+      it ('should return undefined for empty mask', function () {
+        expect($mask.dirtyPosition(2, '')).not.toBeDefined();
+        expect($mask.dirtyPosition(0, '')).not.toBeDefined();
+      });
+      it ('should return undefined if idx is bigger then schema length', function () {
+        expect($mask.dirtyPosition(2, '#')).not.toBeDefined();
+      });
+      it ('should return position of schema char', function () {
+        expect($mask.dirtyPosition(0, '232#')).toEqual(3);
+        expect($mask.dirtyPosition(1, '232#23#')).toEqual(6);
+      });
+      it ('should support static symbols', function () {
+        expect($mask.dirtyPosition(0, '\\+232#')).toEqual(4);
+        expect($mask.dirtyPosition(1, '\\+23122#\\(23#\\)')).toEqual(10);
+      });
+    });
+    describe('nextPosition', function () {
+      it ('should return Undefined for empty mask', function () {
+        expect($mask.nextPosition(1,'')).not.toBeDefined();
+      });
+      it ('should return Undefined if place was not found', function () {
+        expect($mask.nextPosition(1,'123')).not.toBeDefined();
+        expect($mask.nextPosition(1,'3#')).not.toBeDefined();
+      });
+      it ('should calculate next position', function () {
+        expect($mask.nextPosition(2,'22#2#')).toEqual(4);
+        expect($mask.nextPosition(1,'22#2#')).toEqual(4);
+        expect($mask.nextPosition(2,'22##2#')).toEqual(3);
+      });
+      it ('should calculate prev position', function () {
+        expect($mask.nextPosition(4,'22#2#', false)).toEqual(2);
+        expect($mask.nextPosition(10,'2122#12 32#', false)).toEqual(4);
+        expect($mask.nextPosition(4,'# # #', false)).toEqual(2);
+      });
+      it ('should support static symbols', function () {
+        expect($mask.nextPosition(4,'2\\+2#\\)323\\((32#')).toEqual(12);
+        expect($mask.nextPosition(4,'\\+\\/\\-3#23#')).toEqual(7);
+      })
+    })
   });
 });

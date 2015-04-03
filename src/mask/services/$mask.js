@@ -18,6 +18,11 @@ Mask.service('$mask', function () {
     }
     return __cache[mask];
   }
+  function notStatic (schemas) {
+    return schemas.filter(function (item) {
+      return !item.static;
+    });
+  }
 
   /**
    * Parsing mask for templating, clearing, etc.
@@ -166,34 +171,35 @@ Mask.service('$mask', function () {
     var config = parse(mask);
 
     var clearIdx = 0,
-        schema = config.schema;
+        schema = notStatic(config.schema);
+
     if (idx < schema[0].pos) return 0;
     if (idx >= schema[schema.length - 1].pos) return schema.length - 1;
 
-    for (var i = 0, statics = 0, curSchema, l = schema.length; i < l; i++) {
-      curSchema = schema[i];
+    for (var i = 0, cur, l = schema.length; i < l; i++) {
+      cur = schema[i];
 
-      if (idx > curSchema.pos) {
-        if (curSchema.static) statics++;
-        continue;
-      }
-
-      clearIdx = i - statics;
-      if (clearIdx > 0 && idx < curSchema.pos && !forward) clearIdx--;
-
+      if (idx > cur.pos) continue;
+      clearIdx = i;
+      if (clearIdx > 0 && idx < cur.pos && !forward) clearIdx--;
       break;
+
     }
     return clearIdx;
   }
   function dirtyPosition (clearIdx, mask) {
     var config = parse(mask);
     if (clearIdx < 0 || !mask || clearIdx > config.schema.length-1) return;
-    return config.schema[clearIdx].pos;
+    var schemas = notStatic(config.schema);
+    return schemas[clearIdx].pos;
   }
   function nextPosition (dirtyIdx, mask, forward) {
     forward = (typeof forward === 'undefined') ?  true : forward;
-    return dirtyPosition(clearPosition(dirtyIdx, mask) + (forward ? 1: -1), mask);
+    var clearPos = clearPosition(dirtyIdx, mask);
+    console.log(clearPos);
+    return dirtyPosition(clearPos + (forward ? 1: -1), mask);
   }
+
   return {
     fill: fill,
     get: parse,
