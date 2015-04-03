@@ -138,8 +138,6 @@ Mask.service('$mask', function () {
   }
 
 
-
-
   // Simplified outside interfaces by searching schema from cache
   function fill (val, mask) {
     var config = parse(mask);
@@ -168,36 +166,31 @@ Mask.service('$mask', function () {
   // get position in clear value from position in dirty value
   function clearPosition (idx, mask, forward) {
     forward = typeof forward !== 'undefined' ? forward : false; // true
-    var config = parse(mask);
 
     var clearIdx = 0,
-        schema = notStatic(config.schema);
+        schema = notStatic(parse(mask).schema);
 
     if (idx < schema[0].pos) return 0;
     if (idx >= schema[schema.length - 1].pos) return schema.length - 1;
 
-    for (var i = 0, cur, l = schema.length; i < l; i++) {
-      cur = schema[i];
+    for (var i = 0, l = schema.length; i < l; i++) {
 
-      if (idx > cur.pos) continue;
+      if (idx > schema[i].pos) continue;
       clearIdx = i;
-      if (clearIdx > 0 && idx < cur.pos && !forward) clearIdx--;
+      if (clearIdx > 0 && idx < schema[i].pos && !forward) clearIdx--;
       break;
-
     }
+
     return clearIdx;
   }
   function dirtyPosition (clearIdx, mask) {
     var config = parse(mask);
     if (clearIdx < 0 || !mask || clearIdx > config.schema.length-1) return;
-    var schemas = notStatic(config.schema);
-    return schemas[clearIdx].pos;
+    return (notStatic(config.schema)[clearIdx] || {}).pos || mask.length;
   }
   function nextPosition (dirtyIdx, mask, forward) {
     forward = (typeof forward === 'undefined') ?  true : forward;
-    var clearPos = clearPosition(dirtyIdx, mask);
-    console.log(clearPos);
-    return dirtyPosition(clearPos + (forward ? 1: -1), mask);
+    return dirtyPosition(clearPosition(dirtyIdx, mask) + (forward ? 1: -1), mask);
   }
 
   return {
