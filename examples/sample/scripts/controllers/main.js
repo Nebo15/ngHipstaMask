@@ -14,10 +14,10 @@ angular.module('projectsApp')
       'AngularJS',
       'Karma'
     ];
-    $scope.testTemplate = '\\+###\\(##\\)###----##-##';
+    $scope.testTemplate = '###-##-## ###';
     $scope.caret = 0;
     $scope.car = $maskCaret;
-    $scope.testTemplateValue = '+380(93)23234';
+    $scope.testTemplateValue = '123123';
     $scope.$watch('testTemplate', function (val) {
       $scope.testTemplateParsed = $mask.parse(val);
     });

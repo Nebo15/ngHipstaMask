@@ -40,6 +40,7 @@ Mask.service('$mask', function () {
     var matches = [],
       template;
 
+    mask = mask || '';
     mask = mask.replace(/\s/g,'\u00a0');
     var reg = new RegExp('['+Object.keys(patterns).join('')+']', 'g');
 
