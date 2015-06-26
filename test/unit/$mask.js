@@ -96,11 +96,14 @@ describe('ngMask', function() {
       it ('should fill only valid data', function () {
         expect($mask.fill('987a5','+380(##)###')).toEqual('+380(98)7__');
       });
-      it ('should work with escaped chars', function () {
+      it ('should work with static symbols', function () {
         expect($mask.fill('1', '\\+380(##)')).toEqual("+380(__)");
         expect($mask.fill('+1', '\\+380(##)')).toEqual("+380(1_)");
         expect($mask.fill('+380(93)2685446', '\\+###\\(##\\)### ## ##')).toEqual("+380(93)268 54 46");
       });
+      it ('should support autocomplete static symbols', function () {
+        expect($mask.fill('1234567890','\\+###\\(##\\)###-##-##', true)).toEqual('+123(45)678-90-__')
+      })
     });
     describe('clear', function () {
       it ('should get data from dirty string by mask', function () {
@@ -184,6 +187,7 @@ describe('ngMask', function() {
       describe('placeToTheNext', function () {
         it ('should support static symbols', function () {
           expect($mask.placeToTheNext('+380(93123',mask,char)).toEqual('+380(93****123*');
+          expect($mask.placeToTheNext('38093123','\\+###\\(##\\)##-##-##',char, true)).toEqual('+380(93)12*3');
         });
         it ('should autocomplete static symbols', function () {
           expect($mask.placeToTheNext('+380','\\+###\\(##',char, true)).toEqual('+380(');
@@ -209,7 +213,7 @@ describe('ngMask', function() {
           steps.forEach(function (item) {
             expect($mask.placeToTheNext(item.model,mask,' ', true)).toEqual(item.value);
           });
-        })
+        });
       });
     });
 
@@ -217,6 +221,9 @@ describe('ngMask', function() {
       var mask = '211#12#1#1';
       it ('should return 0 position in empty mask', function () {
         expect($mask.clearPosition(10,'')).toEqual(0);
+      });
+      it ('should return correct clear position', function () {
+        expect($mask.clearPosition(7, '###-##\\-## ###', true)).toEqual(5);
       });
       describe(':left', function () {
         var correct = [

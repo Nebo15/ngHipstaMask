@@ -8,9 +8,20 @@ Mask.directive('phoneMask', function ($maskPhone) {
       phoneOptions: '='
     },
     link: function (scope, el, attrs, ngModel) {
-      scope.phoneOptions = $maskPhone.search('');
-      ngModel.$viewChangeListeners.push(function (val) {
-        scope.phoneOptions = $maskPhone.search(ngModel.$modelValue);
+      function clearVal () {
+        return (ngModel.$modelValue || ngModel.$viewValue || '');
+      }
+      var clr;
+      function updateOptions () {
+        clr = clearVal ();
+        scope.phoneOptions = $maskPhone.search (clr);
+      }
+      updateOptions();
+      ngModel.$formatters.push (function (val) {
+        updateOptions();
+      });
+      ngModel.$viewChangeListeners.unshift(function (val) {
+        updateOptions();
       });
     }
   }

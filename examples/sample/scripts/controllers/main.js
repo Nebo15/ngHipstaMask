@@ -14,10 +14,13 @@ angular.module('projectsApp')
       'AngularJS',
       'Karma'
     ];
-    $scope.testTemplate = '###-##-## ###';
+    $scope.options = {};
+    $scope.inn = '7809018702';
+    $scope.testTemplate = '\\+### (##) ###-####';
+    $scope.card = '1234123412341234';
     $scope.caret = 0;
     $scope.car = $maskCaret;
-    $scope.testTemplateValue = '123123';
+    // $scope.testTemplateValue = '+380932685446';
     $scope.$watch('testTemplate', function (val) {
       $scope.testTemplateParsed = $mask.parse(val);
     });

@@ -1,14 +1,24 @@
 'use strict';
 
-Mask.service('$mask', function () {
+Mask.provider('$mask', function () {
 
-  var __cache = {};
-  var patterns = {
-    '#': /\d/,
-    '*': /\w/,
-    "\\\\": null
+  return {
+    patterns: {
+      '#': /\d/,
+      '*': /\w/,
+      "\\\\": null
+    },
+    spacer: '_',
+    $get: MaskService
   };
-  var _spacer = '_';
+
+});
+
+function MaskService () {
+
+  var __cache = {},
+      patterns = this.patterns,
+      _spacer = this.spacer;
 
   function hasMask (mask) {
     return !!__cache[mask];
@@ -73,21 +83,41 @@ Mask.service('$mask', function () {
     };
   }
 
+  function autocompleteStaticValues (val, template, schema) {
+    val = val.split('');
+    // расставить по местам значения и дополнить статическими символами
+    for (var i = 0, l = val.length; i<l && schema[i]; i++) {
+      if (schema[i].static && !schema[i].pattern.test(val[i])) // место статического символа, но вставлен не он
+      {
+        val.splice(i, 0, template[schema[i].pos]);
+        l++;
+      }
+    }
+
+    val = val.join('');
+    return val;
+  }
+
   /**
    * Insert model value to mask
    * @param val
    * @param template
    * @param schema
+   * @param auto
    * @returns {string}
    */
-  function fillTemplate (val, template, schema) {
+  function fillTemplate (val, template, schema, auto) {
     val = (val || '').toString();
     template = template.split('');
+
+    if (auto == true) val = autocompleteStaticValues(val, template, schema);
+
     for (var i = 0, l = val.length; i<l; i++) {
       if (!schema[i]) break; // schema less, then value
       else if (!schema[i].static && !schema[i].pattern || !schema[i].pattern.test(val[i])) break; // don't insert if value is not matched with pattern OR not is static
       else template[schema[i].pos] = val[i]; // replace if value is correct
     }
+
     return template.join('');
   }
   /**
@@ -125,12 +155,16 @@ Mask.service('$mask', function () {
 
   /**
    * Placings
-  */
+   */
   function placeWithTemplateFull (val, template, schema, space, auto) {
-    if (auto) val = autocomplete (val, template, schema);
-    return fillTemplate(val, placer(template, space), schema);
+    if (auto) {
+      val = autocompleteStaticValues(val, template, schema);
+      val = autocomplete (val, template, schema);
+    }
+    return fillTemplate(val, placer(template, space), schema, false);
   }
   function placeWithTemplate (val, template, schema, space) {
+    val = val || '';
     var l = (val.length > schema.length) ? schema.length : (val.length || 1);
     return placeWithTemplateFull(val, template, schema, space).substr(0, schema[l-1].pos + !!val.length);
   }
@@ -143,15 +177,18 @@ Mask.service('$mask', function () {
    * @returns {string}
    */
   function placeWithTemplateToTheNext (val, template, schema, space, auto) {
-    if (auto) val = autocomplete (val, template, schema);
-    var res = placeWithTemplateFull(val, template, schema, space, auto);
+    val = val || '';
+    if (auto) {
+      val = autocompleteStaticValues(val, template, schema);
+      val = autocomplete (val, template, schema);
+    }
+    var res = placeWithTemplateFull(val, template, schema, space, false);
     return res.substr(0, (schema[val.length] || {}).pos);
   }
-
   // Simplified outside interfaces by searching schema from cache
-  function fill (val, mask) {
+  function fill (val, mask, auto) {
     var config = parse(mask);
-    return fillTemplate(val, config.template, config.schema);
+    return fillTemplate(val, config.template, config.schema, auto);
   }
   function clear (val, mask) {
     var config = parse(mask);
@@ -175,8 +212,8 @@ Mask.service('$mask', function () {
 
   function isStaticCharByIdx (idx, mask) {
     return onlyStatic(parse(mask).schema).filter(function (item) {
-      return item.pos == idx;
-    }).length > 0;
+        return item.pos == idx;
+      }).length > 0;
   }
   function isAccessoryCharByIdx (idx, mask) {
     var config = parse(mask);
@@ -187,13 +224,12 @@ Mask.service('$mask', function () {
     forward = typeof forward !== 'undefined' ? forward : false; // true
 
     var clearIdx = 0,
-        schema = notStatic(parse(mask).schema);
+      schema = notStatic(parse(mask).schema);
 
     if (idx < schema[0].pos) return 0;
     if (idx >= schema[schema.length - 1].pos) return schema.length - 1;
 
     for (var i = 0, l = schema.length; i < l; i++) {
-
       if (idx > schema[i].pos) continue;
       clearIdx = i;
       if (clearIdx > 0 && idx < schema[i].pos && !forward) clearIdx--;
@@ -227,6 +263,7 @@ Mask.service('$mask', function () {
     placer: placer,
     template: templateFromMask,
     isAccessoryCharByIdx: isAccessoryCharByIdx,
-    isStaticCharByIdx: isStaticCharByIdx
+    isStaticCharByIdx: isStaticCharByIdx,
+    notStatic: notStatic
   };
-});
+}
