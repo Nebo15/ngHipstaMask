@@ -114,9 +114,9 @@ gulp.task('livereload', function() {
 });
 gulp.task('webserver', function() {
     connect.server({
-        livereload: true,
-        port: 8080,
-        host: '0.0.0.0'
+      livereload: true,
+      port: 8080,
+      host: '0.0.0.0'
     });
 });
 
@@ -141,5 +141,5 @@ gulp.task('build-lib', function (cb) {
 });
 gulp.task('default', ['build-lib', 'sass']);
 gulp.task('publish', function (cb) {
-  runSequence('build-lib','publish-bower-package', cb);
+    runSequence('build-lib','publish-bower-package', cb);
 });
