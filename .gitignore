@@ -12,12 +12,12 @@ atlassian-ide-plugin.xml
 node_modules/
 npm-debug.log
 libpeerconnection.log
-
+examples
+test
 # OS-specific
 .DS_Store
 
 # Bower components
 bower
 
-# Generated lib files
-dist
+src
