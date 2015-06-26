@@ -5,6 +5,7 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     tinylr = require('tiny-lr')(),
     connect = require('gulp-connect'),
+    git = require('gulp-git'),
     sourceFiles = [
       'src/mask/mask.prefix',
       'src/mask/mask.js',
@@ -120,19 +121,8 @@ gulp.task('webserver', function() {
     });
 });
 
-gulp.task('clone-bower-component', function (cb) {
-    //git.clone('https://github.com/Nebo15/mbank.lib.angular-compiled', {args: 'dist'}, cb);
-});
-
 gulp.task('clean', function (cb) {
     rmdir('dist', cb);
-});
-
-gulp.task('publish-bower-package', function (cb) {
-    gulp.src( './dist/gulpfile.js' )
-        .pipe( chug({
-            tasks: ['update-changes']
-        }) );
 });
 
 gulp.task('serve', ['default','webserver', 'watch']);
@@ -140,6 +130,3 @@ gulp.task('build-lib', function (cb) {
     runSequence('clean','test-src','build', cb);
 });
 gulp.task('default', ['build-lib', 'sass']);
-gulp.task('publish', function (cb) {
-    runSequence('build-lib','publish-bower-package', cb);
-});
